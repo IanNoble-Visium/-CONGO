@@ -2,12 +2,13 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import { provinces, addresses } from "../../drizzle/schema";
 
-if (!process.env.DATABASE_URL) {
-  throw new Error("DATABASE_URL environment variable is required");
+function getDb() {
+  if (!process.env.DATABASE_URL) {
+    throw new Error("DATABASE_URL environment variable is required");
+  }
+  const client = postgres(process.env.DATABASE_URL);
+  return drizzle(client);
 }
-
-const client = postgres(process.env.DATABASE_URL);
-const db = drizzle(client);
 
 const drcProvinces = [
   {
@@ -436,6 +437,8 @@ const sampleAddresses = [
 
 export async function seedDatabase() {
   try {
+    const db = getDb();
+
     // Insert provinces
     for (const province of drcProvinces) {
       await db.insert(provinces).values(province).onConflictDoUpdate({

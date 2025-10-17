@@ -9,7 +9,6 @@ const DEMO_USER: User = {
   role: "admin",
   createdAt: new Date(),
   lastSignedIn: new Date(),
-  verifiedBy: null,
 };
 
 class SDKServer {
