@@ -1,14 +1,7 @@
 {
   "buildCommand": "pnpm run build",
-  "outputDirectory": "dist",
   "devCommand": "pnpm run dev",
   "env": {
     "NODE_ENV": "production"
-  },
-  "functions": {
-    "dist/index.js": {
-      "memory": 3008,
-      "maxDuration": 60
-    }
   }
 }

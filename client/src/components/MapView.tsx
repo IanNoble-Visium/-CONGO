@@ -18,14 +18,21 @@ L.Icon.Default.mergeOptions({
 interface Address {
   id: string;
   fullAddress: string;
-  latitude: string | null;
-  longitude: string | null;
+  latitude: string | number | null;
+  longitude: string | number | null;
   verificationStatus: "unverified" | "pending" | "verified" | "disputed" | null;
   quartier?: string | null;
   commune?: string | null;
   street?: string | null;
   doorNumber?: string | null;
   dataSource?: string | null;
+}
+
+// Helper function to convert latitude/longitude to number
+function toNumber(value: string | number | null | undefined): number | null {
+  if (value === null || value === undefined) return null;
+  const num = typeof value === "string" ? parseFloat(value) : Number(value);
+  return isNaN(num) ? null : num;
 }
 
 interface MapViewProps {
@@ -108,15 +115,17 @@ export default function MapView({ addresses, onAddressClick, center = [-4.3276, 
   const [mapZoom, setMapZoom] = useState(zoom);
 
   // Filter addresses with valid coordinates
-  const validAddresses = addresses.filter(
-    (addr) => addr.latitude && addr.longitude && !isNaN(parseFloat(addr.latitude)) && !isNaN(parseFloat(addr.longitude))
-  );
+  const validAddresses = addresses.filter((addr) => {
+    const lat = toNumber(addr.latitude);
+    const lng = toNumber(addr.longitude);
+    return lat !== null && lng !== null;
+  });
 
   // Calculate center if addresses are available
   useEffect(() => {
     if (validAddresses.length > 0) {
-      const lats = validAddresses.map((a) => parseFloat(a.latitude!));
-      const lngs = validAddresses.map((a) => parseFloat(a.longitude!));
+      const lats = validAddresses.map((a) => toNumber(a.latitude)!);
+      const lngs = validAddresses.map((a) => toNumber(a.longitude)!);
       const centerLat = lats.reduce((a, b) => a + b, 0) / lats.length;
       const centerLng = lngs.reduce((a, b) => a + b, 0) / lngs.length;
       setMapCenter([centerLat, centerLng]);
@@ -142,8 +151,8 @@ export default function MapView({ addresses, onAddressClick, center = [-4.3276, 
           />
           <MapCenterController center={mapCenter} />
           {validAddresses.map((address) => {
-            const lat = parseFloat(address.latitude!);
-            const lng = parseFloat(address.longitude!);
+            const lat = toNumber(address.latitude)!;
+            const lng = toNumber(address.longitude)!;
 
             return (
               <Marker key={address.id} position={[lat, lng]} icon={getMarkerIcon(address.verificationStatus || "unverified")}>

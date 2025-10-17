@@ -314,11 +314,11 @@ const sampleAddresses = [
     quartier: "Centre-Ville",
     commune: "Lubumbashi",
     provinceId: "prov_haut_katanga",
-    latitude: "-11.6792",
-    longitude: "27.4797",
+    latitude: -11.6792,
+    longitude: 27.4797,
     verificationStatus: "verified" as const,
     dataSource: "manual_survey" as const,
-    confidenceScore: "0.90",
+    confidenceScore: 0.90,
   },
   {
     id: "addr_lub_002",
@@ -329,11 +329,11 @@ const sampleAddresses = [
     quartier: "Kenya",
     commune: "Lubumbashi",
     provinceId: "prov_haut_katanga",
-    latitude: "-11.6456",
-    longitude: "27.4823",
+    latitude: -11.6456,
+    longitude: 27.4823,
     verificationStatus: "pending" as const,
     dataSource: "manual_survey" as const,
-    confidenceScore: "0.85",
+    confidenceScore: 0.85,
   },
   // Goma samples
   {
@@ -345,11 +345,11 @@ const sampleAddresses = [
     quartier: "Lac Vert",
     commune: "Goma",
     provinceId: "prov_north_kivu",
-    latitude: "-1.6740",
-    longitude: "29.2228",
+    latitude: -1.6740,
+    longitude: 29.2228,
     verificationStatus: "verified" as const,
     dataSource: "manual_survey" as const,
-    confidenceScore: "0.88",
+    confidenceScore: 0.88,
   },
   {
     id: "addr_gom_002",
@@ -360,11 +360,11 @@ const sampleAddresses = [
     quartier: "Himbi",
     commune: "Goma",
     provinceId: "prov_north_kivu",
-    latitude: "-1.6812",
-    longitude: "29.2156",
+    latitude: -1.6812,
+    longitude: 29.2156,
     verificationStatus: "verified" as const,
     dataSource: "manual_survey" as const,
-    confidenceScore: "0.91",
+    confidenceScore: 0.91,
   },
   // Bukavu samples
   {
@@ -376,11 +376,11 @@ const sampleAddresses = [
     quartier: "Ibanda",
     commune: "Ibanda",
     provinceId: "prov_south_kivu",
-    latitude: "-2.5085",
-    longitude: "28.8473",
+    latitude: -2.5085,
+    longitude: 28.8473,
     verificationStatus: "verified" as const,
     dataSource: "manual_survey" as const,
-    confidenceScore: "0.93",
+    confidenceScore: 0.93,
   },
   {
     id: "addr_buk_002",
@@ -391,11 +391,11 @@ const sampleAddresses = [
     quartier: "Kadutu",
     commune: "Kadutu",
     provinceId: "prov_south_kivu",
-    latitude: "-2.5156",
-    longitude: "28.8512",
+    latitude: -2.5156,
+    longitude: 28.8512,
     verificationStatus: "pending" as const,
     dataSource: "crowdsourced" as const,
-    confidenceScore: "0.76",
+    confidenceScore: 0.76,
   },
   // Kisangani samples
   {
@@ -407,11 +407,11 @@ const sampleAddresses = [
     quartier: "Makiso",
     commune: "Makiso",
     provinceId: "prov_tshopo",
-    latitude: "0.5167",
-    longitude: "25.1833",
+    latitude: 0.5167,
+    longitude: 25.1833,
     verificationStatus: "verified" as const,
     dataSource: "manual_survey" as const,
-    confidenceScore: "0.87",
+    confidenceScore: 0.87,
   },
   {
     id: "addr_kis_002",
@@ -422,11 +422,11 @@ const sampleAddresses = [
     quartier: "Tshopo",
     commune: "Tshopo",
     provinceId: "prov_tshopo",
-    latitude: "0.5234",
-    longitude: "25.1912",
+    latitude: 0.5234,
+    longitude: 25.1912,
     verificationStatus: "unverified" as const,
     dataSource: "ai_detected" as const,
-    confidenceScore: "0.62",
+    confidenceScore: 0.62,
   },
 ];
 
@@ -436,7 +436,14 @@ export async function seedDatabase() {
     for (const province of drcProvinces) {
       await db.insert(provinces).values(province).onConflictDoUpdate({
         target: provinces.id,
-        set: { name: province.name },
+        set: {
+          name: province.name,
+          code: province.code,
+          population: province.population,
+          areaSqkm: province.areaSqkm,
+          capitalCity: province.capitalCity,
+          targetAddresses: province.targetAddresses,
+        },
       });
     }
 
@@ -444,7 +451,19 @@ export async function seedDatabase() {
     for (const address of sampleAddresses) {
       await db.insert(addresses).values(address).onConflictDoUpdate({
         target: addresses.id,
-        set: { fullAddress: address.fullAddress },
+        set: {
+          fullAddress: address.fullAddress,
+          latitude: address.latitude,
+          longitude: address.longitude,
+          verificationStatus: address.verificationStatus,
+          dataSource: address.dataSource,
+          confidenceScore: address.confidenceScore,
+          street: address.street,
+          doorNumber: address.doorNumber,
+          quartier: address.quartier,
+          commune: address.commune,
+          zone: address.zone,
+        },
       });
     }
 
