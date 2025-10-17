@@ -2,9 +2,15 @@
   "buildCommand": "pnpm exec vite build",
   "devCommand": "pnpm run dev",
   "outputDirectory": "dist/public",
+  "functions": {
+    "api/index.js": {
+      "memory": 3008,
+      "maxDuration": 60
+    }
+  },
   "rewrites": [
     {
-      "source": "/api/:path*",
+      "source": "/api/trpc/:path*",
       "destination": "/api"
     },
     {

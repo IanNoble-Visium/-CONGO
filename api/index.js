@@ -1,8 +1,22 @@
-export default function handler(req, res) {
-  // This is a placeholder - the actual tRPC API needs a full Node.js environment
-  // For now, return a message indicating the API is not available in this deployment
-  res.status(503).json({ 
-    error: 'API not available',
-    message: 'This deployment is frontend-only. Backend API functionality is not available.'
-  });
-}
+import { createExpressMiddleware } from "@trpc/server/adapters/express";
+import { appRouter } from "../server/routers.js";
+import { createContext } from "../server/_core/context.js";
+import express from "express";
+
+const app = express();
+
+// Configure body parser
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ limit: "50mb", extended: true }));
+
+// tRPC middleware
+app.use(
+  "/api/trpc",
+  createExpressMiddleware({
+    router: appRouter,
+    createContext,
+  })
+);
+
+// Export as Vercel serverless function
+export default app;
