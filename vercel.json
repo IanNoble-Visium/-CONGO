@@ -1,5 +1,5 @@
 {
-  "buildCommand": "pnpm run build",
+  "buildCommand": "pnpm exec vite build",
   "devCommand": "pnpm run dev",
   "outputDirectory": "dist/public",
   "rewrites": [
