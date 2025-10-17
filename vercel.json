@@ -1,0 +1,16 @@
+{
+  "buildCommand": "pnpm run build",
+  "outputDirectory": "dist",
+  "framework": "other",
+  "devCommand": "pnpm run dev",
+  "env": {
+    "NODE_ENV": "production"
+  },
+  "crons": [],
+  "functions": {
+    "dist/index.js": {
+      "memory": 3008,
+      "maxDuration": 60
+    }
+  }
+}

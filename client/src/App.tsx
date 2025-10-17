@@ -8,6 +8,7 @@ import Home from "./pages/Home";
 import MapPage from "./pages/MapPage";
 import AddressesPage from "./pages/AddressesPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
+import SettingsPage from "./pages/SettingsPage";
 import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
 import { useAuth } from "./_core/hooks/useAuth";
@@ -22,6 +23,7 @@ function Router() {
       <Route path={"/map"} component={MapPage} />
       <Route path={"/addresses"} component={AddressesPage} />
       <Route path={"/analytics"} component={AnalyticsPage} />
+      <Route path={"/settings"} component={SettingsPage} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />

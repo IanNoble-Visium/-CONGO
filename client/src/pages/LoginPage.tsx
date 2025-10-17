@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,6 +10,19 @@ export default function LoginPage() {
   const [password, setPassword] = useState("Demo2024!");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [videoIndex, setVideoIndex] = useState(0);
+  const videos = [
+    "Video_1_kinshasa_202510171522_jgcpf.mp4",
+    "Video_6_interactive_202510171522_354ph.mp4",
+    "Video_20_future_202510171525_8wcwq.mp4",
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setVideoIndex((prev) => (prev + 1) % videos.length);
+    }, 8000);
+    return () => clearInterval(interval);
+  }, [videos.length]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,14 +60,24 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#007FFF] via-white to-[#F7D618] flex items-center justify-center p-4">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-5">
-        <div className="absolute inset-0 bg-grid-pattern"></div>
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Video Background */}
+      <div className="absolute inset-0 w-full h-full">
+        <video
+          key={videoIndex}
+          className="w-full h-full object-cover"
+          autoPlay
+          muted
+          playsInline
+        >
+          <source src={`/video/${videos[videoIndex]}`} type="video/mp4" />
+        </video>
+        {/* Dark Overlay */}
+        <div className="absolute inset-0 bg-black/50"></div>
       </div>
 
       {/* Hero Section Left */}
-      <div className="hidden lg:flex absolute left-0 top-0 w-1/2 h-full flex-col justify-center px-12 text-white">
+      <div className="hidden lg:flex absolute left-0 top-0 w-1/2 h-full flex-col justify-center px-12 text-white z-10">
         <div className="max-w-md">
           <div className="inline-flex items-center justify-center gap-2 bg-white/20 border border-white/30 rounded-full px-4 py-2 mb-8">
             <Globe className="h-4 w-4" />
@@ -88,7 +111,7 @@ export default function LoginPage() {
       </div>
 
       {/* Login Form */}
-      <div className="relative z-10 w-full max-w-md lg:ml-auto lg:mr-12">
+      <div className="relative z-20 w-full max-w-md lg:ml-auto lg:mr-12">
         <Card className="border-0 shadow-2xl">
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl">Welcome Back</CardTitle>
