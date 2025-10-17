@@ -1,13 +1,5 @@
 {
   "buildCommand": "pnpm run build",
   "devCommand": "pnpm run dev",
-  "env": {
-    "NODE_ENV": "production"
-  },
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/api"
-    }
-  ]
+  "outputDirectory": "dist/public"
 }
