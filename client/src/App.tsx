@@ -9,6 +9,7 @@ import MapPage from "./pages/MapPage";
 import AddressesPage from "./pages/AddressesPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
 import LandingPage from "./pages/LandingPage";
+import LoginPage from "./pages/LoginPage";
 import { useAuth } from "./_core/hooks/useAuth";
 
 function Router() {
@@ -17,6 +18,7 @@ function Router() {
   return (
     <Switch>
       <Route path={"/"} component={isAuthenticated ? Home : LandingPage} />
+      <Route path={"/login"} component={LoginPage} />
       <Route path={"/map"} component={MapPage} />
       <Route path={"/addresses"} component={AddressesPage} />
       <Route path={"/analytics"} component={AnalyticsPage} />

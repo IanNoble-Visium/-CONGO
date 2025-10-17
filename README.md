@@ -8,22 +8,22 @@ A comprehensive geospatial application designed to create a nationwide physical 
 - **Interactive Map View**: Leaflet-based map with address markers and filtering
 - **Addresses Management**: Browse, filter, and manage all mapped addresses
 - **Analytics**: Comprehensive statistics and insights by province and data source
-- **Database**: MySQL/TiDB with Drizzle ORM for type-safe database operations
-- **Authentication**: Built-in OAuth integration with Manus
+- **Database**: PostgreSQL with Drizzle ORM for type-safe database operations
+- **Authentication**: Simple demo authentication for testing
 
 ## Tech Stack
 
 - **Frontend**: React 19, TypeScript, Tailwind CSS 4, shadcn/ui
 - **Backend**: Express 4, tRPC 11
-- **Database**: MySQL/TiDB with Drizzle ORM
+- **Database**: PostgreSQL with Drizzle ORM
 - **Mapping**: Leaflet, React-Leaflet
-- **Build Tool**: Vite 7
+- **Build Tool**: Vite 6
 
 ## Prerequisites
 
-- Node.js 18+ (recommended: Node.js 22)
+- Node.js 20+ (recommended: Node.js 20.10.0 or higher)
 - pnpm (will be installed automatically if not present)
-- MySQL database (or TiDB for cloud deployment)
+- PostgreSQL database (or Neon PostgreSQL for cloud deployment)
 
 ## Local Setup
 
@@ -38,31 +38,21 @@ pnpm install
 Create a `.env` file in the project root with the following variables:
 
 ```env
-# Database
-DATABASE_URL=mysql://username:password@localhost:3306/congo_address_mapper
-
-# Authentication (provided by Manus platform)
-JWT_SECRET=your-jwt-secret
-OAUTH_SERVER_URL=https://api.manus.im
-VITE_OAUTH_PORTAL_URL=https://oauth.manus.im
+# Database (PostgreSQL)
+DATABASE_URL=postgresql://username:password@localhost:5432/congo_address_mapper
 
 # Application
 VITE_APP_ID=congo-address-mapper
 VITE_APP_TITLE=CongoAddressMapper
 VITE_APP_LOGO=https://your-logo-url.com/logo.png
 
-# Owner (optional)
-OWNER_OPEN_ID=your-owner-id
-OWNER_NAME=Your Name
-
-# Built-in APIs (provided by Manus platform)
-BUILT_IN_FORGE_API_URL=https://api.manus.im
-BUILT_IN_FORGE_API_KEY=your-api-key
-
-# Analytics (optional)
-VITE_ANALYTICS_ENDPOINT=https://analytics.manus.im
-VITE_ANALYTICS_WEBSITE_ID=your-website-id
+# Infrastructure (server-only)
+PORT=3000
 ```
+
+**Demo Authentication:**
+- Email: `demo@congo.cd`
+- Password: `Demo2024!`
 
 ### 3. Set Up Database
 
@@ -163,13 +153,23 @@ The analytics page provides:
 
 ## Deployment
 
-This application is designed to be deployed on the Manus platform, which provides:
-- Automatic OAuth integration
-- Built-in database provisioning
-- S3 storage for photos and documents
-- Analytics and monitoring
+For deployment, ensure all environment variables are properly configured and the PostgreSQL database is accessible.
 
-For manual deployment, ensure all environment variables are properly configured and the database is accessible.
+**Production Deployment Steps:**
+
+1. Build the application:
+   ```bash
+   pnpm build
+   ```
+
+2. Set production environment variables in your deployment environment
+
+3. Start the server:
+   ```bash
+   pnpm start
+   ```
+
+**Note:** The current authentication system uses a static demo user for testing purposes. For production deployment, implement proper OAuth or JWT-based authentication.
 
 ## Support
 
