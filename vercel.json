@@ -1,4 +1,11 @@
 {
   "buildCommand": "pnpm run build",
-  "devCommand": "pnpm run dev"
+  "devCommand": "pnpm run dev",
+  "outputDirectory": "dist/public",
+  "rewrites": [
+    {
+      "source": "/(?!assets|favicon\\.ico)(.*)",
+      "destination": "/index.html"
+    }
+  ]
 }
