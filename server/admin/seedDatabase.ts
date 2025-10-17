@@ -2,7 +2,11 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import { provinces, addresses } from "../../drizzle/schema";
 
-const client = postgres(process.env.DATABASE_URL!);
+if (!process.env.DATABASE_URL) {
+  throw new Error("DATABASE_URL environment variable is required");
+}
+
+const client = postgres(process.env.DATABASE_URL);
 const db = drizzle(client);
 
 const drcProvinces = [
@@ -253,11 +257,11 @@ const sampleAddresses = [
     quartier: "Gombe",
     commune: "Gombe",
     provinceId: "prov_kinshasa",
-    latitude: -4.3276,
-    longitude: 15.3136,
+    latitude: "-4.3276",
+    longitude: "15.3136",
     verificationStatus: "verified" as const,
     dataSource: "manual_survey" as const,
-    confidenceScore: 0.95,
+    confidenceScore: "0.95",
   },
   {
     id: "addr_kin_002",
@@ -268,11 +272,11 @@ const sampleAddresses = [
     quartier: "Kalamu",
     commune: "Kalamu",
     provinceId: "prov_kinshasa",
-    latitude: -4.3389,
-    longitude: 15.3214,
+    latitude: "-4.3389",
+    longitude: "15.3214",
     verificationStatus: "verified" as const,
     dataSource: "manual_survey" as const,
-    confidenceScore: 0.92,
+    confidenceScore: "0.92",
   },
   {
     id: "addr_kin_003",
@@ -283,11 +287,11 @@ const sampleAddresses = [
     quartier: "Lemba",
     commune: "Lemba",
     provinceId: "prov_kinshasa",
-    latitude: -4.3897,
-    longitude: 15.2967,
+    latitude: "-4.3897",
+    longitude: "15.2967",
     verificationStatus: "pending" as const,
     dataSource: "crowdsourced" as const,
-    confidenceScore: 0.78,
+    confidenceScore: "0.78",
   },
   {
     id: "addr_kin_004",
@@ -298,11 +302,11 @@ const sampleAddresses = [
     quartier: "Ngaliema",
     commune: "Ngaliema",
     provinceId: "prov_kinshasa",
-    latitude: -4.3712,
-    longitude: 15.2689,
+    latitude: "-4.3712",
+    longitude: "15.2689",
     verificationStatus: "unverified" as const,
     dataSource: "ai_detected" as const,
-    confidenceScore: 0.65,
+    confidenceScore: "0.65",
   },
   // Lubumbashi samples
   {
@@ -314,11 +318,11 @@ const sampleAddresses = [
     quartier: "Centre-Ville",
     commune: "Lubumbashi",
     provinceId: "prov_haut_katanga",
-    latitude: -11.6792,
-    longitude: 27.4797,
+    latitude: "-11.6792",
+    longitude: "27.4797",
     verificationStatus: "verified" as const,
     dataSource: "manual_survey" as const,
-    confidenceScore: 0.90,
+    confidenceScore: "0.90",
   },
   {
     id: "addr_lub_002",
@@ -329,11 +333,11 @@ const sampleAddresses = [
     quartier: "Kenya",
     commune: "Lubumbashi",
     provinceId: "prov_haut_katanga",
-    latitude: -11.6456,
-    longitude: 27.4823,
+    latitude: "-11.6456",
+    longitude: "27.4823",
     verificationStatus: "pending" as const,
     dataSource: "manual_survey" as const,
-    confidenceScore: 0.85,
+    confidenceScore: "0.85",
   },
   // Goma samples
   {
@@ -345,11 +349,11 @@ const sampleAddresses = [
     quartier: "Lac Vert",
     commune: "Goma",
     provinceId: "prov_north_kivu",
-    latitude: -1.6740,
-    longitude: 29.2228,
+    latitude: "-1.6740",
+    longitude: "29.2228",
     verificationStatus: "verified" as const,
     dataSource: "manual_survey" as const,
-    confidenceScore: 0.88,
+    confidenceScore: "0.88",
   },
   {
     id: "addr_gom_002",
@@ -360,11 +364,11 @@ const sampleAddresses = [
     quartier: "Himbi",
     commune: "Goma",
     provinceId: "prov_north_kivu",
-    latitude: -1.6812,
-    longitude: 29.2156,
+    latitude: "-1.6812",
+    longitude: "29.2156",
     verificationStatus: "verified" as const,
     dataSource: "manual_survey" as const,
-    confidenceScore: 0.91,
+    confidenceScore: "0.91",
   },
   // Bukavu samples
   {
@@ -376,11 +380,11 @@ const sampleAddresses = [
     quartier: "Ibanda",
     commune: "Ibanda",
     provinceId: "prov_south_kivu",
-    latitude: -2.5085,
-    longitude: 28.8473,
+    latitude: "-2.5085",
+    longitude: "28.8473",
     verificationStatus: "verified" as const,
     dataSource: "manual_survey" as const,
-    confidenceScore: 0.93,
+    confidenceScore: "0.93",
   },
   {
     id: "addr_buk_002",
@@ -391,11 +395,11 @@ const sampleAddresses = [
     quartier: "Kadutu",
     commune: "Kadutu",
     provinceId: "prov_south_kivu",
-    latitude: -2.5156,
-    longitude: 28.8512,
+    latitude: "-2.5156",
+    longitude: "28.8512",
     verificationStatus: "pending" as const,
     dataSource: "crowdsourced" as const,
-    confidenceScore: 0.76,
+    confidenceScore: "0.76",
   },
   // Kisangani samples
   {
@@ -407,11 +411,11 @@ const sampleAddresses = [
     quartier: "Makiso",
     commune: "Makiso",
     provinceId: "prov_tshopo",
-    latitude: 0.5167,
-    longitude: 25.1833,
+    latitude: "0.5167",
+    longitude: "25.1833",
     verificationStatus: "verified" as const,
     dataSource: "manual_survey" as const,
-    confidenceScore: 0.87,
+    confidenceScore: "0.87",
   },
   {
     id: "addr_kis_002",
@@ -422,11 +426,11 @@ const sampleAddresses = [
     quartier: "Tshopo",
     commune: "Tshopo",
     provinceId: "prov_tshopo",
-    latitude: 0.5234,
-    longitude: 25.1912,
+    latitude: "0.5234",
+    longitude: "25.1912",
     verificationStatus: "unverified" as const,
     dataSource: "ai_detected" as const,
-    confidenceScore: 0.62,
+    confidenceScore: "0.62",
   },
 ];
 
