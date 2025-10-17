@@ -45,7 +45,7 @@ const drcProvinces = [
   {
     id: "prov_mai_ndombe",
     name: "Mai-Ndombe",
-    code: "MAN",
+    code: "MND",
     population: 2495000,
     areaSqkm: "127465.00",
     capitalCity: "Inongo",
@@ -99,7 +99,7 @@ const drcProvinces = [
   {
     id: "prov_maniema",
     name: "Maniema",
-    code: "MAN",
+    code: "MAE",
     population: 2856000,
     areaSqkm: "132250.00",
     capitalCity: "Kindu",
