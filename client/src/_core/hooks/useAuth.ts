@@ -1,84 +1,71 @@
-import { getLoginUrl } from "@/const";
-import { trpc } from "@/lib/trpc";
-import { TRPCClientError } from "@trpc/client";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 type UseAuthOptions = {
   redirectOnUnauthenticated?: boolean;
   redirectPath?: string;
 };
 
+// Demo user for static authentication
+const DEMO_USER = {
+  id: "demo-user-001",
+  name: "Demo User",
+  email: "demo@congo.cd",
+  role: "admin" as const,
+  createdAt: new Date(),
+  lastSignedIn: new Date(),
+  loginMethod: "demo",
+};
+
 export function useAuth(options?: UseAuthOptions) {
-  const { redirectOnUnauthenticated = false, redirectPath = getLoginUrl() } =
+  const { redirectOnUnauthenticated = false, redirectPath = "/login" } =
     options ?? {};
-  const utils = trpc.useUtils();
+  const [isLoading, setIsLoading] = useState(true);
 
-  const meQuery = trpc.auth.me.useQuery(undefined, {
-    retry: false,
-    refetchOnWindowFocus: false,
-  });
+  // Get auth state from localStorage
+  const getAuthState = useCallback(() => {
+    if (typeof window === "undefined") {
+      return { user: null, isAuthenticated: false };
+    }
 
-  const logoutMutation = trpc.auth.logout.useMutation({
-    onSuccess: () => {
-      utils.auth.me.setData(undefined, null);
-    },
-  });
+    const isAuthenticated = localStorage.getItem("isAuthenticated") === "true";
+    if (isAuthenticated) {
+      return { user: DEMO_USER, isAuthenticated: true };
+    }
+    return { user: null, isAuthenticated: false };
+  }, []);
+
+  const [authState, setAuthState] = useState(() => getAuthState());
+
+  // Initialize auth state on mount
+  useEffect(() => {
+    setAuthState(getAuthState());
+    setIsLoading(false);
+  }, [getAuthState]);
 
   const logout = useCallback(async () => {
-    try {
-      await logoutMutation.mutateAsync();
-    } catch (error: unknown) {
-      if (
-        error instanceof TRPCClientError &&
-        error.data?.code === "UNAUTHORIZED"
-      ) {
-        return;
-      }
-      throw error;
-    } finally {
-      utils.auth.me.setData(undefined, null);
-      await utils.auth.me.invalidate();
-    }
-  }, [logoutMutation, utils]);
+    localStorage.removeItem("isAuthenticated");
+    localStorage.removeItem("user");
+    setAuthState({ user: null, isAuthenticated: false });
+    window.location.href = "/login";
+  }, []);
 
-  const state = useMemo(() => {
-    localStorage.setItem(
-      "manus-runtime-user-info",
-      JSON.stringify(meQuery.data)
-    );
-    return {
-      user: meQuery.data ?? null,
-      loading: meQuery.isLoading || logoutMutation.isPending,
-      error: meQuery.error ?? logoutMutation.error ?? null,
-      isAuthenticated: Boolean(meQuery.data),
-    };
-  }, [
-    meQuery.data,
-    meQuery.error,
-    meQuery.isLoading,
-    logoutMutation.error,
-    logoutMutation.isPending,
-  ]);
-
+  // Handle redirect for unauthenticated users
   useEffect(() => {
     if (!redirectOnUnauthenticated) return;
-    if (meQuery.isLoading || logoutMutation.isPending) return;
-    if (state.user) return;
+    if (isLoading) return;
+    if (authState.isAuthenticated) return;
     if (typeof window === "undefined") return;
     if (window.location.pathname === redirectPath) return;
 
-    window.location.href = redirectPath
-  }, [
-    redirectOnUnauthenticated,
-    redirectPath,
-    logoutMutation.isPending,
-    meQuery.isLoading,
-    state.user,
-  ]);
+    window.location.href = redirectPath;
+  }, [redirectOnUnauthenticated, redirectPath, isLoading, authState.isAuthenticated]);
 
   return {
-    ...state,
-    refresh: () => meQuery.refetch(),
+    user: authState.user,
+    loading: isLoading,
+    error: null,
+    isAuthenticated: authState.isAuthenticated,
+    refresh: () => setAuthState(getAuthState()),
     logout,
   };
 }

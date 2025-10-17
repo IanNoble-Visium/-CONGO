@@ -1,6 +1,5 @@
 import type { CreateExpressContextOptions } from "@trpc/server/adapters/express";
 import type { User } from "../../drizzle/schema";
-import { sdk } from "./sdk";
 
 export type TrpcContext = {
   req: CreateExpressContextOptions["req"];
@@ -8,17 +7,24 @@ export type TrpcContext = {
   user: User | null;
 };
 
+// Demo user for static authentication
+const DEMO_USER: User = {
+  id: "demo-user-001",
+  name: "Demo User",
+  email: "demo@congo.cd",
+  loginMethod: "demo",
+  role: "admin",
+  createdAt: new Date(),
+  lastSignedIn: new Date(),
+  verifiedBy: null,
+};
+
 export async function createContext(
   opts: CreateExpressContextOptions
 ): Promise<TrpcContext> {
-  let user: User | null = null;
-
-  try {
-    user = await sdk.authenticateRequest(opts.req);
-  } catch (error) {
-    // Authentication is optional for public procedures.
-    user = null;
-  }
+  // For demo purposes, always return the demo user
+  // In production, this would validate session tokens
+  const user = DEMO_USER;
 
   return {
     req: opts.req,

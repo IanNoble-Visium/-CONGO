@@ -46,13 +46,13 @@ function MapCenterController({ center }: { center: [number, number] }) {
   return null;
 }
 
-// Custom marker icon based on verification status
+// Custom marker icon based on verification status - Congo themed colors
 function getMarkerIcon(status: string) {
   const colors = {
-    verified: "#10b981", // emerald-500
-    pending: "#f59e0b", // amber-500
-    disputed: "#ef4444", // red-500
-    unverified: "#2563eb", // blue-600
+    verified: "#10b981", // Emerald for verified
+    pending: "#F7D618", // Congo yellow for pending
+    disputed: "#CE1126", // Congo red for disputed
+    unverified: "#007FFF", // Congo sky blue for unverified
   };
 
   const color = colors[status as keyof typeof colors] || colors.unverified;
@@ -62,24 +62,34 @@ function getMarkerIcon(status: string) {
     html: `
       <div style="
         background-color: ${color};
-        width: 24px;
-        height: 24px;
+        width: 28px;
+        height: 28px;
         border-radius: 50%;
-        border: 2px solid white;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-      "></div>
+        border: 3px solid white;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      ">
+        <div style="
+          width: 4px;
+          height: 4px;
+          background-color: white;
+          border-radius: 50%;
+        "></div>
+      </div>
     `,
-    iconSize: [24, 24],
-    iconAnchor: [12, 12],
+    iconSize: [28, 28],
+    iconAnchor: [14, 14],
   });
 }
 
 function getStatusBadge(status: string) {
   const variants = {
     verified: { icon: CheckCircle, className: "bg-emerald-500 text-white" },
-    pending: { icon: Clock, className: "bg-amber-500 text-white" },
-    disputed: { icon: AlertTriangle, className: "bg-red-500 text-white" },
-    unverified: { icon: MapPin, className: "bg-blue-600 text-white" },
+    pending: { icon: Clock, className: "bg-[#F7D618] text-gray-900 font-semibold" },
+    disputed: { icon: AlertTriangle, className: "bg-[#CE1126] text-white" },
+    unverified: { icon: MapPin, className: "bg-[#007FFF] text-white" },
   };
 
   const variant = variants[status as keyof typeof variants] || variants.unverified;
@@ -190,4 +200,3 @@ export default function MapView({ addresses, onAddressClick, center = [-4.3276, 
     </div>
   );
 }
-

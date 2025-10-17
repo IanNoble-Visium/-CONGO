@@ -8,12 +8,15 @@ import Home from "./pages/Home";
 import MapPage from "./pages/MapPage";
 import AddressesPage from "./pages/AddressesPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
+import LandingPage from "./pages/LandingPage";
+import { useAuth } from "./_core/hooks/useAuth";
 
 function Router() {
-  // make sure to consider if you need authentication for certain routes
+  const { isAuthenticated } = useAuth();
+
   return (
     <Switch>
-      <Route path={"/"} component={Home} />
+      <Route path={"/"} component={isAuthenticated ? Home : LandingPage} />
       <Route path={"/map"} component={MapPage} />
       <Route path={"/addresses"} component={AddressesPage} />
       <Route path={"/analytics"} component={AnalyticsPage} />

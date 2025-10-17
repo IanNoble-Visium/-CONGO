@@ -216,11 +216,11 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Info Card */}
-        <Card className="bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800">
+        {/* Info Card with Congo Colors */}
+        <Card className="bg-gradient-to-r from-[#007FFF]/10 to-[#F7D618]/10 dark:bg-gradient-to-r dark:from-[#007FFF]/20 dark:to-[#F7D618]/20 border-[#007FFF]/30 dark:border-[#007FFF]/50">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <MapPin className="h-5 w-5 text-blue-600" />
+              <MapPin className="h-5 w-5 text-[#007FFF]" />
               About CongoAddressMapper
             </CardTitle>
           </CardHeader>
@@ -237,4 +237,3 @@ export default function Home() {
     </DashboardLayout>
   );
 }
-
