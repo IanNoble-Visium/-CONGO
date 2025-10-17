@@ -114,12 +114,20 @@ export default function MapView({ addresses, onAddressClick, center = [-4.3276, 
   const [mapCenter, setMapCenter] = useState<[number, number]>(center);
   const [mapZoom, setMapZoom] = useState(zoom);
 
+  // Debug logging
+  console.log("MapView received addresses:", addresses);
+  console.log("Total addresses:", addresses.length);
+
   // Filter addresses with valid coordinates
   const validAddresses = addresses.filter((addr) => {
     const lat = toNumber(addr.latitude);
     const lng = toNumber(addr.longitude);
-    return lat !== null && lng !== null;
+    const isValid = lat !== null && lng !== null;
+    console.log(`Address ${addr.id}: lat=${addr.latitude} (${lat}), lng=${addr.longitude} (${lng}), valid=${isValid}`);
+    return isValid;
   });
+
+  console.log("Valid addresses with coordinates:", validAddresses.length);
 
   // Calculate center if addresses are available
   useEffect(() => {
