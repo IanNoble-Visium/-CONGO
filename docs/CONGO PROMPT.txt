@@ -1,0 +1,37 @@
+You are an expert software architect and developer specializing in geospatial applications, GIS systems, and AI-integrated mapping tools for developing regions. Your task is to design and outline the development of a comprehensive application called "CongoAddressMapper" for mapping over 20 million residential addresses in the Democratic Republic of the Congo (DRC). The app must receive data from multiple sources, process it to generate and verify addresses, and produce interactive maps and databases. It should be scalable, cost-effective, user-friendly for non-technical users (e.g., community surveyors), and suitable for low-bandwidth environments in Africa.
+
+### Core Requirements:
+- **Purpose**: Create a national-scale residential address mapping system for the DRC, handling informal settlements, rapid urbanization, and limited infrastructure. The app should support a hybrid approach: remote sensing with satellite imagery and AI for initial detection, followed by ground surveys for verification and codification. It must incorporate real-world address formats like the example from Kinshasa: a street sign showing "13B AV. KIMBAO" with quartier (Q/MATEBA C/NGABA), emergency numbers, and icons for services (e.g., police, fire, ambulance). Use this as inspiration for address codification (e.g., alphanumeric with zones, streets, and doors) and include features to display or integrate similar localized information (e.g., emergency contacts, landmarks).
+- **Scale**: Handle 20+ million addresses across DRC's 26 provinces, with phased rollout starting from pilots in high-density areas like Kinshasa.
+- **Data Reception**: 
+  - Ingest data from satellites (e.g., Landsat, Sentinel via APIs like Google Earth Engine), AI-processed building footprints, user-uploaded GPS points from mobile surveys, crowdsourced inputs (e.g., via OpenStreetMap integration), and existing datasets (e.g., GRID3, WorldPop).
+  - Support file uploads (e.g., CSV, GeoJSON, images of signs like the provided example for OCR extraction of address details).
+  - Real-time data entry via mobile app for ground teams, including photos, GPS coordinates, and occupant info.
+- **Processing and Mapping**:
+  - Use AI (e.g., deep learning models like U-Net or DeepLabV3) to detect and classify buildings/settlements from imagery, achieving 80-90% accuracy for informal areas.
+  - Apply GIS tools to generate addresses: Implement codification logic (e.g., alphanumeric systems like "Zone A - Street 1.01 - Door 5") based on metrics, boundaries, and local naming conventions. Automatically flag conflicts or informal paths for human review.
+  - Verify data through participatory methods: Allow community users to edit/confirm via a web/mobile interface, with version control.
+  - Integrate local elements: Parse and display info from signs like emergency numbers, quartiers (neighborhoods), and icons; use this to enrich maps (e.g., overlay service points).
+- **Output and Features**:
+  - Generate interactive digital maps (e.g., using Leaflet or Mapbox) with search functionality by address, GPS, or name.
+  - Export options: GIS databases (e.g., PostgreSQL with PostGIS), printable maps, APIs for integration with services like navigation apps or government systems.
+  - Dashboards for project management: Track progress (e.g., % mapped per province), data quality metrics, and updates.
+  - Sustainability: Include annual update mechanisms (e.g., change detection via satellite diffs) and low-cost markers (e.g., generate stencils for physical signs).
+- **Technical Stack**:
+  - Backend: Python (Flask/Django) or Node.js for scalability; use cloud services like AWS or Google Cloud for hosting, with offline capabilities via service workers.
+  - Frontend: React Native for cross-platform mobile/web app; ensure offline mode for rural areas.
+  - AI/GIS: Libraries like TensorFlow/PyTorch for models, GDAL/GeoPandas for processing, QGIS/ArcGIS APIs for integration.
+  - Database: PostgreSQL with spatial extensions.
+  - Security/Privacy: GDPR-like compliance for personal data; role-based access (e.g., admins, surveyors, public viewers).
+- **Challenges to Address**:
+  - DRC-specific: Handle conflict zones, diverse languages (French, Lingala, etc.), poor connectivity, and environmental factors (e.g., forests, erosion).
+  - Cost: Optimize for $0.50-2 per inhabitant budget; leverage free/open-source tools.
+  - Usability: Intuitive UI with multilingual support; training modules for users.
+  - Integration: Partner APIs (e.g., OSM, GRID3); allow importing sign images for automatic extraction (using OCR like Tesseract).
+
+### Development Guidelines:
+- **Phases**: Outline a phased plan: 1) MVP for pilot (e.g., one province, 1M addresses); 2) Scaling with AI enhancements; 3) Full deployment with community features.
+- **Best Practices**: Emphasize open-source where possible for collaboration; include testing for edge cases (e.g., rural vs. urban); focus on mobile-first design.
+- **Output Format**: Provide a detailed spec document including: high-level architecture diagram (text-based), user stories, key features with wireframes (describe in text), code structure outline, estimated timeline (24-36 months), and budget breakdown. Suggest partnerships (e.g., UN-Habitat, HOT OSM Team).
+
+Generate the complete application design, including sample code snippets for critical components (e.g., AI detection script, address codification function). Ensure the solution is innovative, ethical, and impactful for DRC's development.
