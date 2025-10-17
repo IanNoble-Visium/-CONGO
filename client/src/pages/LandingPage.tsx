@@ -47,18 +47,35 @@ function AnimatedCounter({ target, suffix = "" }: { target: number; suffix?: str
 export default function LandingPage() {
   const { isAuthenticated } = useAuth();
   const [videoIndex, setVideoIndex] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const videos = [
     "Video_1_kinshasa_202510171522_jgcpf.mp4",
     "Video_6_interactive_202510171522_354ph.mp4",
     "Video_20_future_202510171525_8wcwq.mp4",
   ];
 
+  // Shuffle array function
+  const shuffleArray = (array: string[]) => {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  };
+
+  const [shuffledVideos, setShuffledVideos] = useState(() => shuffleArray(videos));
+
   useEffect(() => {
     const interval = setInterval(() => {
-      setVideoIndex((prev) => (prev + 1) % videos.length);
+      setIsTransitioning(true);
+      setTimeout(() => {
+        setVideoIndex((prev) => (prev + 1) % shuffledVideos.length);
+        setIsTransitioning(false);
+      }, 500); // Half of transition time
     }, 8000);
     return () => clearInterval(interval);
-  }, [videos.length]);
+  }, [shuffledVideos.length]);
 
   // Redirect authenticated users to dashboard
   if (isAuthenticated) {
@@ -73,12 +90,14 @@ export default function LandingPage() {
         <div className="absolute inset-0 w-full h-full">
           <video
             key={videoIndex}
-            className="w-full h-full object-cover"
+            className={`w-full h-full object-cover transition-opacity duration-1000 ${
+              isTransitioning ? 'opacity-0' : 'opacity-100'
+            }`}
             autoPlay
             muted
             playsInline
           >
-            <source src={`/video/${videos[videoIndex]}`} type="video/mp4" />
+            <source src={`/video/${shuffledVideos[videoIndex]}`} type="video/mp4" />
           </video>
           {/* Dark Overlay */}
           <div className="absolute inset-0 bg-black/40"></div>
