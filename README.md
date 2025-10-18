@@ -10,6 +10,36 @@ A comprehensive geospatial application designed to create a nationwide physical 
 - **Analytics**: Comprehensive statistics and insights by province and data source
 - **Database**: PostgreSQL with Drizzle ORM for type-safe database operations
 - **Authentication**: Simple demo authentication for testing
+- **DRC National Colors Theme**: Custom styling using the Democratic Republic of Congo's national colors (Blue, Red, Yellow)
+
+## Democratic Republic of Congo National Colors
+
+This application incorporates the official national colors of the Democratic Republic of the Congo (DRC) in its design theme:
+
+### Color Palette
+
+| Color | Hex Code | RGB | Symbolism |
+|-------|----------|-----|-----------|
+| **Blue** | `#0085CA` | `rgb(0, 133, 202)` | Peace and hope |
+| **Red** | `#EF3340` | `rgb(239, 51, 64)` | Blood of martyrs and sacrifice for independence |
+| **Yellow** | `#FFD100` | `rgb(255, 209, 0)` | Nation's wealth and prosperity |
+
+These colors are used throughout the application:
+- **Primary elements**: Buttons, links, and interactive components
+- **Status indicators**: Verification status markers on the map
+- **Charts and graphs**: Data visualization elements in analytics
+- **Branding**: Logo, headers, and accent elements
+
+The color scheme reflects the DRC's national identity while maintaining accessibility and visual hierarchy in the user interface.
+
+**Current Implementation Status: ✅ Already Active**
+
+The application currently uses the DRC national colors throughout:
+- **Primary actions**: Democratic Republic of Congo blue (#0085CA)
+- **Secondary elements**: DRC yellow (#FFD100) for highlights and accents
+- **Status indicators**: DRC red (#EF3340) for destructive actions and alerts
+- **Data visualization**: All charts use the DRC color palette
+- **Interactive elements**: Buttons, links, and form controls use DRC colors
 
 ## Tech Stack
 
@@ -153,21 +183,40 @@ The analytics page provides:
 
 ## Deployment
 
-For deployment, ensure all environment variables are properly configured and the PostgreSQL database is accessible.
+The application is successfully deployed on Vercel and supports both development and production environments.
 
-**Production Deployment Steps:**
+**Production Deployment (Vercel):**
 
-1. Build the application:
+✅ **Currently Active** - The application is deployed at `https://congo.visiumtechnologies.com`
+
+**Deployment Features:**
+- **Serverless API**: tRPC endpoints served via Vercel's serverless functions
+- **Static Assets**: Optimized client bundle with gzip compression
+- **Database**: PostgreSQL integration with Drizzle ORM
+- **CDN**: Fast global content delivery via Vercel's edge network
+
+**Environment Configuration:**
+- Database connection configured for production PostgreSQL
+- API endpoints properly routed through `/api/trpc/*`
+- Static assets served from optimized build
+
+**Development Deployment:**
+
+1. **Local Development**:
+   ```bash
+   pnpm dev
+   ```
+   - Hot reload with Vite
+   - Local PostgreSQL database
+   - Development API server on `http://localhost:3000`
+
+2. **Production Build**:
    ```bash
    pnpm build
    ```
-
-2. Set production environment variables in your deployment environment
-
-3. Start the server:
-   ```bash
-   pnpm start
-   ```
+   - Optimized client bundle in `dist/public/`
+   - Server bundle in `dist/index.js`
+   - Ready for Vercel deployment
 
 **Note:** The current authentication system uses a static demo user for testing purposes. For production deployment, implement proper OAuth or JWT-based authentication.
 
