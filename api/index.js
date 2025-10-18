@@ -1,6 +1,5 @@
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
-import { appRouter } from "../dist/index.js";
-import { createContext } from "../dist/_core/context.js";
+import { appRouter, createContext } from "../dist/index.js";
 
 export default async function handler(req, res) {
   // Set CORS headers
