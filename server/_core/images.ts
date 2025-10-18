@@ -10,7 +10,7 @@ async function generateOpenAIImageB64(prompt: string, size = "1024x1024"): Promi
       Authorization: `Bearer ${ENV.openaiApiKey}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ model: ENV.openaiImageModel || "gpt-image-1", prompt, size }),
+    body: JSON.stringify({ model: ENV.openaiImageModel || "gpt-image-1", prompt, size, response_format: "b64_json" }),
   });
   if (!res.ok) {
     const txt = await res.text().catch(() => "");
@@ -45,22 +45,44 @@ async function generateRecraftImageB64(prompt: string, size = "1024x1024"): Prom
 }
 
 export async function generateImageB64(prompt: string, size?: string): Promise<{ b64: string; provider: string }> {
-  const provider = (ENV.imageProvider || "openai").toLowerCase();
-  try {
-    if (provider === "recraft") {
+  const pref = (ENV.imageProvider || "auto").toLowerCase();
+  const hasRecraft = !!ENV.recraftApiKey && !!ENV.recraftApiUrl;
+  const hasOpenAI = !!ENV.openaiApiKey;
+
+  async function tryRecraftFirst() {
+    if (!hasRecraft) throw new Error("Recraft not configured");
+    try {
       const b64 = await generateRecraftImageB64(prompt, size);
       return { b64, provider: "recraft" } as const;
+    } catch (e) {
+      if (hasOpenAI) {
+        const b64 = await generateOpenAIImageB64(prompt, size);
+        return { b64, provider: "openai" } as const;
+      }
+      throw e;
     }
-    const b64 = await generateOpenAIImageB64(prompt, size);
-    return { b64, provider: "openai" } as const;
-  } catch (err) {
-    // Fallback to OpenAI if recraft fails
-    if (provider !== "openai") {
+  }
+
+  async function tryOpenAIFirst() {
+    if (!hasOpenAI) throw new Error("OpenAI not configured");
+    try {
       const b64 = await generateOpenAIImageB64(prompt, size);
       return { b64, provider: "openai" } as const;
+    } catch (e) {
+      if (hasRecraft) {
+        const b64 = await generateRecraftImageB64(prompt, size);
+        return { b64, provider: "recraft" } as const;
+      }
+      throw e;
     }
-    throw err;
   }
+
+  if (pref === "recraft") return tryRecraftFirst();
+  if (pref === "openai") return tryOpenAIFirst();
+  // auto: prefer Recraft if configured, otherwise OpenAI
+  if (hasRecraft) return tryRecraftFirst();
+  if (hasOpenAI) return tryOpenAIFirst();
+  throw new Error("No image provider configured");
 }
 
 function cloudinarySignature(params: Record<string, string>, apiSecret: string) {
@@ -103,10 +125,14 @@ export async function uploadToCloudinary(b64: string, options?: { folder?: strin
 }
 
 export async function ensureModulePageImage(moduleId: string, pageIndex: number, prompt: string, size = "1024x1024") {
-  const existing = await getTrainingModuleImage(moduleId, pageIndex);
-  if (existing?.url) return existing;
+  try {
+    const existing = await getTrainingModuleImage(moduleId, pageIndex);
+    if (existing?.url) return existing;
+  } catch {}
   const { b64, provider } = await generateImageB64(prompt, size);
   const { url, public_id } = await uploadToCloudinary(b64, { folder: ENV.cloudinaryFolder, publicId: `${moduleId}_${pageIndex}` });
-  await saveTrainingModuleImage({ moduleId, pageIndex, url, provider, prompt, publicId: public_id });
+  try {
+    await saveTrainingModuleImage({ moduleId, pageIndex, url, provider, prompt, publicId: public_id });
+  } catch {}
   return { moduleId, pageIndex, url, provider, prompt, publicId: public_id };
 }

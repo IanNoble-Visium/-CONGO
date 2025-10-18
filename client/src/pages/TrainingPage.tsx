@@ -564,11 +564,35 @@ function QuizSection({ moduleId, pageIndex, quiz, language, onResult }: { module
 }
 
 function PageImageBackground({ moduleId, pageIndex, title, body, canGenerate }: { moduleId: string; pageIndex: number; title: string; body: string; canGenerate: boolean }) {
-  const { t } = useLanguage();
+  const { language } = useLanguage();
   const query = trpc.training.getPageImage.useQuery({ moduleId, pageIndex }, { enabled: !!moduleId || pageIndex >= 0 });
   const gen = trpc.training.generatePageImage.useMutation();
   const prompt = `${title}. ${body}`.slice(0, 800);
-  const url = query.data?.url || null;
+  const [tempUrl, setTempUrl] = useState<string | null>(null);
+  const url = tempUrl || query.data?.url || null;
+  const attemptedRef = useRef(false);
+
+  // Simple labels without typed translation keys
+  const loadingLabel = language === "fr" ? "Génération..." : "Generating...";
+  const generateLabel = language === "fr" ? "Générer une image illustrative" : "Generate illustrative image";
+
+  // Auto-generate once when missing and allowed
+  useEffect(() => {
+    if (!canGenerate) return;
+    if (url) return;
+    const isPending = (gen as any).isPending || (gen as any).status === "pending";
+    if (isPending || attemptedRef.current) return;
+    attemptedRef.current = true;
+    gen.mutate(
+      { moduleId, pageIndex, prompt },
+      {
+        onSuccess: (data) => {
+          if (data?.url) setTempUrl(data.url);
+          query.refetch();
+        },
+      }
+    );
+  }, [canGenerate, url, gen.status, moduleId, pageIndex, prompt]);
   return (
     <>
       {url ? (
@@ -578,10 +602,10 @@ function PageImageBackground({ moduleId, pageIndex, title, body, canGenerate }: 
           <div className="absolute inset-0 -z-10 flex items-center justify-center">
             <Button
               variant="outline"
-              onClick={() => gen.mutate({ moduleId, pageIndex, prompt }, { onSuccess: () => query.refetch() })}
-              disabled={gen.isLoading}
+              onClick={() => gen.mutate({ moduleId, pageIndex, prompt }, { onSuccess: (d) => { if (d?.url) setTempUrl(d.url); query.refetch(); } })}
+              disabled={(gen as any).isPending || (gen as any).status === "pending"}
             >
-              {gen.isLoading ? (t("common.loading") || "Generating...") : (t("training.generateImage") || "Generate illustrative image")}
+              {( (gen as any).isPending || (gen as any).status === "pending") ? loadingLabel : generateLabel}
             </Button>
           </div>
         )

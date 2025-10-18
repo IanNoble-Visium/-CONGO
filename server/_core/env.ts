@@ -7,7 +7,7 @@ export const ENV = {
   openaiApiKey: process.env.OPENAI_API_KEY ?? process.env.GPT_API_KEY ?? "",
   openaiTtsModel: process.env.OPENAI_TTS_MODEL ?? "gpt-4o-mini-tts",
   // Images
-  imageProvider: (process.env.IMAGE_PROVIDER ?? "openai").toLowerCase(), // openai | recraft
+  imageProvider: (process.env.IMAGE_PROVIDER ?? "auto").toLowerCase(), // auto | openai | recraft (auto prefers Recraft if configured)
   openaiImageModel: process.env.OPENAI_IMAGE_MODEL ?? "gpt-image-1",
   recraftApiKey: process.env.RECRAFT_API_KEY ?? "",
   recraftApiUrl: process.env.RECRAFT_API_URL ?? "",
