@@ -1,8 +1,11 @@
 import { COOKIE_NAME } from "../shared/const";
+import fs from "fs";
+import path from "path";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, adminProcedure, router } from "./_core/trpc";
 import { z } from "zod";
+import { synthesizeSpeech } from "./_core/tts";
 import type { Response } from "express";
 import {
   getAllProvinces,
@@ -248,6 +251,43 @@ export const appRouter = router({
     }),
   }),
 
+  training: router({
+    listVideos: publicProcedure.query(async () => {
+      const trainingDir = path.resolve(process.cwd(), "video", "training");
+      let files: string[] = [];
+      try {
+        files = fs.readdirSync(trainingDir).filter(f => /\.(mp4|webm|ogg)$/i.test(f));
+      } catch {
+        files = [];
+      }
+      return files.map(name => ({ name, url: `/media/training/${name}` }));
+    }),
+
+    prompts: publicProcedure.query(async () => {
+      const promptsPath = path.resolve(process.cwd(), "video", "training", "CongoAddressMapper - Kinshasa & Gombe Municipality Video Prompts.md");
+      try {
+        const content = fs.readFileSync(promptsPath, "utf-8");
+        return parseTrainingPrompts(content);
+      } catch {
+        return { modules: [], raw: "" } as const;
+      }
+    }),
+
+    narrate: publicProcedure
+      .input(
+        z.object({
+          text: z.string().min(1),
+          language: z.enum(["en", "fr"]).default("en"),
+          voice: z.string().optional(),
+          format: z.enum(["mp3", "wav", "ogg", "aac"]).optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        const result = await synthesizeSpeech(input);
+        return result;
+      }),
+  }),
+
   // Admin operations
   admin: router({
     seedDatabase: adminProcedure.mutation(async () => {
@@ -258,4 +298,27 @@ export const appRouter = router({
 });
 
 export type AppRouter = typeof appRouter;
+
+function parseTrainingPrompts(md: string): any {
+  const modules: any[] = [];
+  const moduleRegex = /^##\s+(.+?)\s*$([\s\S]*?)(?=^##\s+|\Z)/gm;
+  let m;
+  while ((m = moduleRegex.exec(md)) !== null) {
+    const title = m[1].trim();
+    const body = m[2];
+    const videos: any[] = [];
+    const videoRegex = /^###\s+Video\s+(\d+):\s+(.+?)\s*$([\s\S]*?)(?=^###\s+|\Z)/gm;
+    let v;
+    while ((v = videoRegex.exec(body)) !== null) {
+      const number = Number(v[1]);
+      const vtitle = v[2].trim();
+      const block = v[3];
+      const promptMatch = /\*\*Prompt:\*\*\s*([\s\S]*?)(?:\n\n|\r\n\r\n|\n\-\-\-|$)/.exec(block);
+      const useCaseMatch = /\*\*Use Case:\*\*\s*([\s\S]*?)(?:\n\n|\r\n\r\n|\n\-\-\-|$)/.exec(block);
+      videos.push({ number, title: vtitle, prompt: promptMatch?.[1]?.trim() || "", useCase: useCaseMatch?.[1]?.trim() || "" });
+    }
+    modules.push({ title, videos });
+  }
+  return { modules, raw: md };
+}
 

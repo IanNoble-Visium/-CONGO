@@ -1,4 +1,5 @@
 import { useAuth } from "@/_core/hooks/useAuth";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,6 +9,7 @@ import { Link } from "wouter";
 import DashboardLayout from "@/components/DashboardLayout";
 
 function DashboardStats() {
+  const { t } = useLanguage();
   const { data: stats, isLoading } = trpc.analytics.dashboard.useQuery();
 
   if (isLoading) {
@@ -31,30 +33,30 @@ function DashboardStats() {
 
   const metrics = [
     {
-      title: "Total Addresses",
+      title: t("dashboard.totalAddresses"),
       value: stats?.totalAddresses.toLocaleString() || "0",
-      description: "Mapped across DRC",
+      description: t("dashboard.mappedAcrossDRC"),
       icon: MapPin,
       color: "text-blue-600",
     },
     {
-      title: "Verified Addresses",
+      title: t("dashboard.verifiedAddresses"),
       value: stats?.verifiedAddresses.toLocaleString() || "0",
-      description: `${stats?.totalAddresses ? ((stats.verifiedAddresses / stats.totalAddresses) * 100).toFixed(1) : 0}% verification rate`,
+      description: `${stats?.totalAddresses ? ((stats.verifiedAddresses / stats.totalAddresses) * 100).toFixed(1) : 0}% ${t("dashboard.verificationRate")}`,
       icon: CheckCircle,
       color: "text-emerald-500",
     },
     {
-      title: "Provinces",
+      title: t("dashboard.provinces"),
       value: stats?.totalProvinces.toString() || "0",
-      description: "Administrative regions",
+      description: t("dashboard.administrativeRegions"),
       icon: MapIcon,
       color: "text-purple-600",
     },
     {
-      title: "Active Surveyors",
+      title: t("dashboard.activeSurveyors"),
       value: stats?.activeSurveyors.toString() || "0",
-      description: "Currently collecting data",
+      description: t("dashboard.currentlyCollecting"),
       icon: Users,
       color: "text-amber-500",
     },
@@ -82,6 +84,7 @@ function DashboardStats() {
 }
 
 function ProvinceStats() {
+  const { t } = useLanguage();
   const { data: provinceStats, isLoading } = trpc.analytics.byProvince.useQuery();
 
   if (isLoading) {
@@ -110,8 +113,8 @@ function ProvinceStats() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Mapping Progress by Province</CardTitle>
-        <CardDescription>Top 10 provinces by address count</CardDescription>
+        <CardTitle>{t("dashboard.mappingProgress")}</CardTitle>
+        <CardDescription>{t("dashboard.topProvinces")}</CardDescription>
       </CardHeader>
       <CardContent>
         {topProvinces.length === 0 ? (
@@ -130,7 +133,7 @@ function ProvinceStats() {
                     <div className="flex-1">
                       <p className="text-sm font-medium">{province.provinceName || "Unknown Province"}</p>
                       <p className="text-xs text-muted-foreground">
-                        {province.total.toLocaleString()} addresses • {verificationRate.toFixed(1)}% verified
+                        {province.total.toLocaleString()} {t("dashboard.addresses")} • {verificationRate.toFixed(1)}% {t("dashboard.verified")}
                       </p>
                     </div>
                     <div className="flex gap-2 text-xs">
@@ -159,29 +162,30 @@ function ProvinceStats() {
 }
 
 function QuickActions() {
+  const { t } = useLanguage();
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Quick Actions</CardTitle>
-        <CardDescription>Common tasks and navigation</CardDescription>
+        <CardTitle>{t("dashboard.quickActions")}</CardTitle>
+        <CardDescription>{t("dashboard.commonTasks")}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-2">
         <Link href="/map">
           <Button variant="outline" className="w-full justify-start">
             <MapIcon className="mr-2 h-4 w-4" />
-            View Interactive Map
+            {t("dashboard.viewInteractiveMap")}
           </Button>
         </Link>
         <Link href="/addresses">
           <Button variant="outline" className="w-full justify-start">
             <MapPin className="mr-2 h-4 w-4" />
-            Browse All Addresses
+            {t("dashboard.browseAllAddresses")}
           </Button>
         </Link>
         <Link href="/analytics">
           <Button variant="outline" className="w-full justify-start">
             <TrendingUp className="mr-2 h-4 w-4" />
-            View Analytics
+            {t("dashboard.viewAnalytics")}
           </Button>
         </Link>
       </CardContent>
@@ -191,15 +195,16 @@ function QuickActions() {
 
 export default function Home() {
   const { user, isAuthenticated } = useAuth();
+  const { t } = useLanguage();
 
   return (
     <DashboardLayout>
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+          <h1 className="text-3xl font-bold tracking-tight">{t("dashboard.title")}</h1>
           <p className="text-muted-foreground">
-            Welcome to CongoAddressMapper{isAuthenticated && user ? `, ${user.name}` : ""}
+            {isAuthenticated && user ? t("dashboard.welcomeUser").replace("{user}", user.name) : t("dashboard.welcome")}
           </p>
         </div>
 
@@ -221,15 +226,12 @@ export default function Home() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <MapPin className="h-5 w-5 text-[#007FFF]" />
-              About CongoAddressMapper
+              {t("dashboard.about")}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground">
-              CongoAddressMapper is a comprehensive geospatial application designed to create a nationwide physical
-              address and mapping system for the Democratic Republic of the Congo. This platform supports the DRC
-              infrastructure modernization initiative, enabling critical services including telecommunications, postal
-              tracking, emergency services, and financial technologies.
+              {t("dashboard.aboutDescription")}
             </p>
           </CardContent>
         </Card>

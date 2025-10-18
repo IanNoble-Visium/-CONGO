@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/sidebar";
 import { APP_LOGO, APP_TITLE } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
-import { LayoutDashboard, LogOut, PanelLeft, Map, MapPin, BarChart3, Settings, Satellite, Languages } from "lucide-react";
+import { LayoutDashboard, LogOut, PanelLeft, Map, MapPin, BarChart3, Settings, Satellite, Languages, BookOpen } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
@@ -35,6 +35,7 @@ const menuItems = [
   { icon: MapPin, labelKey: "nav.addresses" as const, path: "/addresses" },
   { icon: Satellite, labelKey: "nav.satelliteData" as const, path: "/satellites" },
   { icon: BarChart3, labelKey: "nav.analytics" as const, path: "/analytics" },
+  { icon: BookOpen, labelKey: "nav.training" as const, path: "/training" },
   { icon: Settings, labelKey: "nav.settings" as const, path: "/settings" },
 ];
 

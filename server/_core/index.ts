@@ -1,5 +1,6 @@
 import "dotenv/config";
 import express from "express";
+import path from "path";
 import { createServer } from "http";
 import net from "net";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
@@ -44,6 +45,10 @@ async function startServer() {
       createContext,
     })
   );
+  const trainingDir = path.resolve(process.cwd(), "video", "training");
+  app.use("/media/training", express.static(trainingDir));
+  const imagesDir = path.resolve(process.cwd(), "images");
+  app.use("/images", express.static(imagesDir));
   // development mode uses Vite, production mode uses static files
   if (process.env.NODE_ENV === "development") {
     try {

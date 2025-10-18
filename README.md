@@ -8,9 +8,73 @@ A comprehensive geospatial application designed to create a nationwide physical 
 - **Interactive Map View**: Leaflet-based map with address markers and filtering
 - **Addresses Management**: Browse, filter, and manage all mapped addresses
 - **Analytics**: Comprehensive statistics and insights by province and data source
+- **Multilingual Support**: English and French language support with session-based preferences
 - **Database**: PostgreSQL with Drizzle ORM for type-safe database operations
 - **Authentication**: Simple demo authentication for testing
 - **DRC National Colors Theme**: Custom styling using the Democratic Republic of Congo's national colors (Blue, Red, Yellow)
+
+## Multilingual Support
+
+The application supports both **English** and **French** to accommodate the linguistic diversity of the Democratic Republic of Congo.
+
+### Language Features
+
+- **Two Languages**: Complete English and French translations throughout the application
+- **Session-based Preference**: Language selection persists during the browser session and resets on new sessions
+- **Default Language**: English is the default language on first visit
+- **Easy Switching**: Toggle between languages using the language button in the sidebar footer (desktop) or header (mobile)
+- **Comprehensive Coverage**: All UI elements, navigation, content, buttons, and messages are translated
+
+### Translated Components
+
+✅ **Navigation & Layout**
+- Sidebar menu items
+- User profile dropdown
+- Authentication screens
+
+✅ **Dashboard Pages**
+- Home dashboard (stats, charts, quick actions)
+- Interactive map (filters, search, legend)
+- Addresses page (table, filters, pagination)
+- Analytics page
+- Settings page
+
+✅ **Common Elements**
+- Form labels and placeholders
+- Button text
+- Status indicators
+- Error messages
+- Success notifications
+
+### Adding New Translations
+
+To extend translations, edit `client/src/locales/translations.ts`:
+
+```typescript
+export const translations = {
+  en: {
+    "your.new.key": "English text",
+  },
+  fr: {
+    "your.new.key": "Texte français",
+  },
+};
+```
+
+Then use in components:
+
+```typescript
+import { useLanguage } from "@/contexts/LanguageContext";
+
+function MyComponent() {
+  const { t } = useLanguage();
+  return <div>{t("your.new.key")}</div>;
+}
+```
+
+### Language Toggle
+
+Users can switch languages at any time by clicking the language button (showing "English" or "Français") in the sidebar footer on desktop, or in the header on mobile devices.
 
 ## Democratic Republic of Congo National Colors
 
@@ -227,4 +291,3 @@ For questions or issues related to the DRC infrastructure modernization project,
 ## License
 
 Proprietary - Visium Technologies
-

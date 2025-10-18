@@ -9,6 +9,7 @@ export const translations = {
     "nav.satelliteData": "Satellite Data",
     "nav.analytics": "Analytics",
     "nav.settings": "Settings",
+    "nav.training": "Training",
     
     // Authentication
     "auth.signIn": "Sign in",
@@ -98,11 +99,16 @@ export const translations = {
     
     // Addresses
     "addresses.title": "Addresses",
+    "addresses.subtitle": "Browse and manage address records",
     "addresses.addNew": "Add New Address",
     "addresses.editAddress": "Edit Address",
     "addresses.deleteAddress": "Delete Address",
     "addresses.searchPlaceholder": "Search addresses...",
     "addresses.noResults": "No addresses found",
+    "addresses.total": "total",
+    "addresses.showing": "Showing",
+    "addresses.allProvinces": "All Provinces",
+    "addresses.allStatuses": "All Statuses",
     
     // Satellite Data
     "satellite.title": "Satellite Data",
@@ -137,6 +143,23 @@ export const translations = {
     "message.deletedSuccessfully": "Deleted successfully",
     "message.updatedSuccessfully": "Updated successfully",
     "message.errorOccurred": "An error occurred",
+
+    // Training
+    "training.title": "Interactive Training",
+    "training.overview": "Learn how CongoAddressMapper works and how to use it effectively.",
+    "training.modules": "Modules",
+    "training.videos": "Videos",
+    "training.playNarration": "Play Narration",
+    "training.stopNarration": "Stop",
+    "training.markComplete": "Mark as Completed",
+    "training.completed": "Completed",
+    "training.quiz": "Quiz",
+    "training.startQuiz": "Start Quiz",
+    "training.submitQuiz": "Submit Quiz",
+    "training.tryAgain": "Try Again",
+    "training.progress": "Progress",
+    "training.loading": "Loading training content...",
+    "training.noVideos": "No training videos found",
   },
   fr: {
     // Navigation
@@ -146,6 +169,7 @@ export const translations = {
     "nav.satelliteData": "Données satellite",
     "nav.analytics": "Analytique",
     "nav.settings": "Paramètres",
+    "nav.training": "Formation",
     
     // Authentication
     "auth.signIn": "Se connecter",
@@ -235,11 +259,16 @@ export const translations = {
     
     // Addresses
     "addresses.title": "Adresses",
+    "addresses.subtitle": "Parcourir et gérer les enregistrements d'adresses",
     "addresses.addNew": "Ajouter une nouvelle adresse",
     "addresses.editAddress": "Modifier l'adresse",
     "addresses.deleteAddress": "Supprimer l'adresse",
     "addresses.searchPlaceholder": "Rechercher des adresses...",
     "addresses.noResults": "Aucune adresse trouvée",
+    "addresses.total": "total",
+    "addresses.showing": "Affichage",
+    "addresses.allProvinces": "Toutes les provinces",
+    "addresses.allStatuses": "Tous les statuts",
     
     // Satellite Data
     "satellite.title": "Données satellite",
@@ -274,5 +303,22 @@ export const translations = {
     "message.deletedSuccessfully": "Supprimé avec succès",
     "message.updatedSuccessfully": "Mis à jour avec succès",
     "message.errorOccurred": "Une erreur s'est produite",
+
+    // Training
+    "training.title": "Formation interactive",
+    "training.overview": "Apprenez le fonctionnement de CongoAddressMapper et comment l'utiliser efficacement.",
+    "training.modules": "Modules",
+    "training.videos": "Vidéos",
+    "training.playNarration": "Lire la narration",
+    "training.stopNarration": "Arrêter",
+    "training.markComplete": "Marquer comme terminé",
+    "training.completed": "Terminé",
+    "training.quiz": "Quiz",
+    "training.startQuiz": "Commencer le quiz",
+    "training.submitQuiz": "Soumettre le quiz",
+    "training.tryAgain": "Réessayer",
+    "training.progress": "Progression",
+    "training.loading": "Chargement du contenu de formation...",
+    "training.noVideos": "Aucune vidéo de formation trouvée",
   },
 };

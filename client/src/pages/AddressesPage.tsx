@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
+import { useLanguage } from "@/contexts/LanguageContext";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -13,6 +14,7 @@ import { MapPin, CheckCircle, Clock, AlertTriangle, XCircle, Search, Filter, Che
 const ITEMS_PER_PAGE = 10;
 
 export default function AddressesPage() {
+  const { t } = useLanguage();
   const [page, setPage] = useState(0);
   const [provinceFilter, setProvinceFilter] = useState<string | undefined>(undefined);
   const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
@@ -73,8 +75,8 @@ export default function AddressesPage() {
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Addresses</h1>
-          <p className="text-muted-foreground">Browse and manage all mapped addresses</p>
+          <h1 className="text-3xl font-bold tracking-tight">{t("addresses.title")}</h1>
+          <p className="text-muted-foreground">{t("addresses.subtitle")}</p>
         </div>
 
         {/* Filters */}
@@ -82,15 +84,15 @@ export default function AddressesPage() {
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <Filter className="h-5 w-5" />
-              Filters
+              {t("common.filter")}
             </CardTitle>
-            <CardDescription>Filter addresses by province, status, or search</CardDescription>
+            <CardDescription>{t("addresses.subtitle")}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid gap-4 md:grid-cols-3">
               {/* Province Filter */}
               <div className="space-y-2">
-                <label className="text-sm font-medium">Province</label>
+                <label className="text-sm font-medium">{t("map.allProvinces").replace("All ", "")}</label>
                 <Select
                   value={provinceFilter || "all"}
                   onValueChange={(v) => {
@@ -102,7 +104,7 @@ export default function AddressesPage() {
                     <SelectValue placeholder="All Provinces" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Provinces</SelectItem>
+                    <SelectItem value="all">{t("addresses.allProvinces")}</SelectItem>
                     {provinces?.map((province) => (
                       <SelectItem key={province.id} value={province.id}>
                         {province.name}
@@ -114,7 +116,7 @@ export default function AddressesPage() {
 
               {/* Status Filter */}
               <div className="space-y-2">
-                <label className="text-sm font-medium">Verification Status</label>
+                <label className="text-sm font-medium">{t("map.allStatuses").replace("All ", "")}</label>
                 <Select
                   value={statusFilter || "all"}
                   onValueChange={(v) => {
@@ -126,22 +128,22 @@ export default function AddressesPage() {
                     <SelectValue placeholder="All Statuses" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Statuses</SelectItem>
-                    <SelectItem value="verified">Verified</SelectItem>
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="unverified">Unverified</SelectItem>
-                    <SelectItem value="disputed">Disputed</SelectItem>
+                    <SelectItem value="all">{t("addresses.allStatuses")}</SelectItem>
+                    <SelectItem value="verified">{t("map.verified")}</SelectItem>
+                    <SelectItem value="pending">{t("map.pending")}</SelectItem>
+                    <SelectItem value="unverified">{t("map.unverified")}</SelectItem>
+                    <SelectItem value="disputed">{t("map.disputed")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               {/* Search */}
               <div className="space-y-2">
-                <label className="text-sm font-medium">Search</label>
+                <label className="text-sm font-medium">{t("common.search")}</label>
                 <div className="relative">
                   <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                   <Input
-                    placeholder="Search addresses..."
+                    placeholder={t("addresses.searchPlaceholder")}
                     value={searchQuery}
                     onChange={(e) => {
                       setSearchQuery(e.target.value);
@@ -158,9 +160,9 @@ export default function AddressesPage() {
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <MapPin className="h-4 w-4" />
                 <span>
-                  Showing <strong>{page * ITEMS_PER_PAGE + 1}</strong> to{" "}
+                  {t("addresses.showing")} <strong>{page * ITEMS_PER_PAGE + 1}</strong> to{" "}
                   <strong>{Math.min((page + 1) * ITEMS_PER_PAGE, total)}</strong> of <strong>{total.toLocaleString()}</strong>{" "}
-                  addresses
+                  {t("dashboard.addresses")}
                 </span>
               </div>
               {(provinceFilter || statusFilter || searchQuery) && (
@@ -174,7 +176,7 @@ export default function AddressesPage() {
                     setPage(0);
                   }}
                 >
-                  Clear Filters
+                  {t("common.reset")} {t("common.filter")}
                 </Button>
               )}
             </div>
@@ -195,8 +197,8 @@ export default function AddressesPage() {
             ) : addresses.length === 0 ? (
               <div className="text-center py-12">
                 <MapPin className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-                <h3 className="text-lg font-semibold mb-2">No addresses found</h3>
-                <p className="text-sm text-muted-foreground">Try adjusting your filters or search query</p>
+                <h3 className="text-lg font-semibold mb-2">{t("addresses.noResults")}</h3>
+                <p className="text-sm text-muted-foreground">{t("error.tryAgain")}</p>
               </div>
             ) : (
               <Table>
@@ -270,7 +272,7 @@ export default function AddressesPage() {
             <div className="flex gap-2">
               <Button variant="outline" size="sm" onClick={() => setPage(Math.max(0, page - 1))} disabled={page === 0}>
                 <ChevronLeft className="h-4 w-4 mr-1" />
-                Previous
+                {t("common.previous")}
               </Button>
               <Button
                 variant="outline"
@@ -278,7 +280,7 @@ export default function AddressesPage() {
                 onClick={() => setPage(Math.min(totalPages - 1, page + 1))}
                 disabled={page >= totalPages - 1}
               >
-                Next
+                {t("common.next")}
                 <ChevronRight className="h-4 w-4 ml-1" />
               </Button>
             </div>
@@ -288,4 +290,3 @@ export default function AddressesPage() {
     </DashboardLayout>
   );
 }
-
