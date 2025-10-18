@@ -150,6 +150,8 @@ export default function MapPage() {
               <div className="h-full rounded-lg overflow-hidden">
                 <MapView
                   addresses={addresses}
+                  showLegend={true}
+                  showHeatMap={true}
                   onAddressClick={(address) => {
                     console.log("Address clicked:", address);
                     // TODO: Open address details dialog
