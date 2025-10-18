@@ -1,4 +1,4 @@
-import type { CookieOptions } from "express";
+import type { CookieOptions, Request } from "express";
 import type { CreateExpressContextOptions } from "@trpc/server/adapters/express";
 
 const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1", "::1"]);
@@ -10,9 +10,11 @@ function isIpAddress(host: string) {
 }
 
 function isSecureRequest(req: CreateExpressContextOptions["req"]) {
-  if (req.protocol === "https") return true;
+  // Type assertion needed because tRPC's type doesn't expose Express properties
+  const expressReq = req as unknown as Request;
+  if (expressReq.protocol === "https") return true;
 
-  const forwardedProto = req.headers["x-forwarded-proto"];
+  const forwardedProto = expressReq.headers["x-forwarded-proto"];
   if (!forwardedProto) return false;
 
   const protoList = Array.isArray(forwardedProto)

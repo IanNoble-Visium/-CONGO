@@ -3,6 +3,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, adminProcedure, router } from "./_core/trpc";
 import { z } from "zod";
+import type { Response } from "express";
 import {
   getAllProvinces,
   getProvinceById,
@@ -31,8 +32,9 @@ export const appRouter = router({
     me: publicProcedure.query((opts) => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {
       const cookieOptions = getSessionCookieOptions(ctx.req);
-      // Use cookie method with maxAge: -1 to clear the cookie
-      ctx.res.cookie(COOKIE_NAME, "", { ...cookieOptions, maxAge: -1 });
+      // Type assertion needed because tRPC's type doesn't expose Express methods
+      const expressRes = ctx.res as unknown as Response;
+      expressRes.cookie(COOKIE_NAME, "", { ...cookieOptions, maxAge: -1 });
       return {
         success: true,
       } as const;
