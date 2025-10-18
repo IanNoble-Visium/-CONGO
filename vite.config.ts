@@ -15,6 +15,7 @@ export default defineConfig({
       "@": path.resolve(__dirname, "client", "src"),
       "@shared": path.resolve(__dirname, "shared"),
       "@assets": path.resolve(__dirname, "attached_assets"),
+      "~": path.resolve(__dirname, "shared"),
     },
   },
   envDir: path.resolve(__dirname),
@@ -26,13 +27,14 @@ export default defineConfig({
   },
   server: {
     host: true,
+    port: 5173,
     allowedHosts: [
       "localhost",
       "127.0.0.1",
     ],
     fs: {
-      strict: true,
-      deny: ["**/.*"],
+      strict: false,
+      allow: [".."],
     },
   },
 });

@@ -142,70 +142,35 @@ function getDataSourceBadge(dataSource: string) {
   );
 }
 
-// Legend Component
-function MapLegend() {
-  const legendItems = [
-    { color: "#0085CA", label: "AI Detected", icon: Database },
-    { color: "#FFD100", label: "Manual Survey", icon: Users },
-    { color: "#8B5CF6", label: "Crowdsourced", icon: Users },
-    { color: "#EF3340", label: "Imported", icon: Database },
-    { color: "#00A86B", label: "Satellite", icon: Satellite },
-    { color: "#007FFF", label: "Unverified", icon: MapPin },
-    { color: "#10b981", label: "Verified", icon: CheckCircle },
-    { color: "#F7D618", label: "Pending", icon: Clock },
-    { color: "#CE1126", label: "Disputed", icon: AlertTriangle },
-  ];
-
-  return (
-    <div className="absolute top-4 right-4 bg-white rounded-lg shadow-lg p-4 z-[1000] min-w-[200px]">
-      <h4 className="font-semibold text-sm mb-3 flex items-center gap-2">
-        <Layers className="h-4 w-4" />
-        Legend
-      </h4>
-      <div className="space-y-2">
-        {legendItems.map((item, index) => {
-          const Icon = item.icon;
-          return (
-            <div key={index} className="flex items-center gap-2 text-xs">
-              <div
-                className="w-4 h-4 rounded-full border border-gray-300"
-                style={{ backgroundColor: item.color }}
-              />
-              <Icon className="h-3 w-3 text-gray-600" />
-              <span className="text-gray-700">{item.label}</span>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
 
 // Heat Map Layer Component
-function HeatMapLayer({ addresses, timeFilter }: { addresses: Address[], timeFilter: string }) {
+function HeatMapLayer({ addresses, timeFilter, visible }: { addresses: Address[], timeFilter: string, visible: boolean }) {
   const map = useMap();
+  const heatLayerRef = useRef<any>(null);
 
   useEffect(() => {
     if (!map || addresses.length === 0) return;
 
-    // Dynamically load heat map library
-    const loadHeatMap = async () => {
-      try {
-        // Check if heat layer is already available
-        if (!(L as any).heatLayer) {
-          const script = document.createElement('script');
-          script.src = 'https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js';
-          script.onload = () => createHeatLayer();
-          document.head.appendChild(script);
-        } else {
+    // Load heat map library if not already loaded
+    if (!(L as any).heatLayer) {
+      const script = document.createElement('script');
+      script.src = 'https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js';
+      script.onload = () => {
+        if (visible) {
           createHeatLayer();
         }
-      } catch (error) {
-        console.error('Failed to load heat map library:', error);
-      }
-    };
+      };
+      document.head.appendChild(script);
+    } else if (visible) {
+      createHeatLayer();
+    }
 
-    const createHeatLayer = () => {
+    function createHeatLayer() {
+      // Remove existing heat layer if it exists
+      if (heatLayerRef.current) {
+        map.removeLayer(heatLayerRef.current);
+      }
+
       // Generate heat map data based on time filter
       const heatData = addresses
         .filter(addr => {
@@ -241,21 +206,18 @@ function HeatMapLayer({ addresses, timeFilter }: { addresses: Address[], timeFil
         }
       });
 
+      heatLayerRef.current = heatLayer;
       heatLayer.addTo(map);
+    }
 
-      return () => {
-        map.removeLayer(heatLayer);
-      };
-    };
-
-    const cleanup = loadHeatMap();
-
+    // Cleanup function
     return () => {
-      if (cleanup && typeof cleanup === 'function') {
-        cleanup();
+      if (heatLayerRef.current) {
+        map.removeLayer(heatLayerRef.current);
+        heatLayerRef.current = null;
       }
     };
-  }, [map, addresses, timeFilter]);
+  }, [map, addresses, timeFilter, visible]);
 
   return null;
 }
@@ -325,57 +287,97 @@ export default function MapView({ addresses, onAddressClick, center = [-4.3276, 
         </Card>
       ) : (
         <>
-          {/* Map Controls */}
-          <div className="absolute top-4 left-4 z-[1000] space-y-2">
-            {/* Map Provider Selector */}
-            <Card className="bg-white shadow-lg">
-              <CardContent className="p-3">
-                <Select value={mapProvider} onValueChange={(value: "openstreetmap" | "yandex") => setMapProvider(value)}>
-                  <SelectTrigger className="w-[140px]">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="openstreetmap">OpenStreetMap</SelectItem>
-                    <SelectItem value="yandex">Yandex Maps</SelectItem>
-                  </SelectContent>
-                </Select>
-              </CardContent>
-            </Card>
+          {/* Map Controls - Repositioned to avoid zoom controls */}
+          <div className="absolute top-4 right-4 z-[1000] flex flex-col gap-3">
+            {/* Legend */}
+            {showLegend && (
+              <Card className="bg-white/95 backdrop-blur-sm shadow-lg border-0 min-w-[200px]">
+                <CardContent className="p-3">
+                  <h4 className="font-semibold text-sm mb-3 flex items-center gap-2 text-gray-800">
+                    <Layers className="h-4 w-4" />
+                    Legend
+                  </h4>
+                  <div className="grid grid-cols-2 gap-1 text-xs">
+                    {[
+                      { color: "#0085CA", label: "AI Detected", icon: Database },
+                      { color: "#FFD100", label: "Manual Survey", icon: Users },
+                      { color: "#8B5CF6", label: "Crowdsourced", icon: Users },
+                      { color: "#EF3340", label: "Imported", icon: Database },
+                      { color: "#00A86B", label: "Satellite", icon: Satellite },
+                      { color: "#007FFF", label: "Unverified", icon: MapPin },
+                      { color: "#10b981", label: "Verified", icon: CheckCircle },
+                      { color: "#F7D618", label: "Pending", icon: Clock },
+                      { color: "#CE1126", label: "Disputed", icon: AlertTriangle },
+                    ].map((item, index) => {
+                      const Icon = item.icon;
+                      return (
+                        <div key={index} className="flex items-center gap-1">
+                          <div
+                            className="w-3 h-3 rounded-full border border-gray-300 flex-shrink-0"
+                            style={{ backgroundColor: item.color }}
+                          />
+                          <span className="text-gray-700 truncate">{item.label}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
-            {/* Heat Map Toggle */}
-            <Card className="bg-white shadow-lg">
-              <CardContent className="p-3">
+            {/* Map Controls Panel */}
+            <Card className="bg-white/95 backdrop-blur-sm shadow-lg border-0">
+              <CardContent className="p-3 space-y-3">
+                {/* Map Provider Selector */}
                 <div className="space-y-2">
-                  <Button
-                    variant={heatMapVisible ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setHeatMapVisible(!heatMapVisible)}
-                    className="w-full flex items-center gap-2"
-                  >
-                    {heatMapVisible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    Heat Map
-                  </Button>
+                  <label className="text-xs font-medium text-gray-700">Map Provider</label>
+                  <Select value={mapProvider} onValueChange={(value: "openstreetmap" | "yandex") => setMapProvider(value)}>
+                    <SelectTrigger className="w-full h-8 text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="openstreetmap">OpenStreetMap</SelectItem>
+                      <SelectItem value="yandex">Yandex Maps</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Heat Map Controls */}
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-gray-700">Heat Map</label>
+                  <div className="flex gap-2">
+                    <Button
+                      variant={heatMapVisible ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setHeatMapVisible(!heatMapVisible)}
+                      className="flex-1 h-8 text-xs"
+                    >
+                      {heatMapVisible ? <EyeOff className="h-3 w-3 mr-1" /> : <Eye className="h-3 w-3 mr-1" />}
+                      {heatMapVisible ? "Hide" : "Show"}
+                    </Button>
+                  </div>
 
                   {heatMapVisible && (
-                    <Select value={timeFilter} onValueChange={setTimeFilter}>
-                      <SelectTrigger className="w-full">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="week">This Week</SelectItem>
-                        <SelectItem value="month">This Month</SelectItem>
-                        <SelectItem value="year">This Year</SelectItem>
-                        <SelectItem value="all">All Time</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <div className="space-y-2">
+                      <label className="text-xs font-medium text-gray-700">Time Period</label>
+                      <Select value={timeFilter} onValueChange={setTimeFilter}>
+                        <SelectTrigger className="w-full h-8 text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="week">This Week</SelectItem>
+                          <SelectItem value="month">This Month</SelectItem>
+                          <SelectItem value="year">This Year</SelectItem>
+                          <SelectItem value="all">All Time</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   )}
                 </div>
               </CardContent>
             </Card>
           </div>
 
-          {/* Legend */}
-          {showLegend && <MapLegend />}
 
           <MapContainer center={mapCenter} zoom={mapZoom} className="w-full h-full rounded-lg" style={{ height: "100%" }}>
             <LayersControl position="topright">
@@ -396,7 +398,7 @@ export default function MapView({ addresses, onAddressClick, center = [-4.3276, 
             <MapCenterController center={mapCenter} />
 
             {/* Heat Map Layer */}
-            {heatMapVisible && <HeatMapLayer addresses={validAddresses} timeFilter={timeFilter} />}
+            <HeatMapLayer addresses={validAddresses} timeFilter={timeFilter} visible={heatMapVisible} />
 
             {/* Address Markers */}
             {validAddresses.map((address) => {

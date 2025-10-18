@@ -2,17 +2,17 @@ import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
-import ErrorBoundary from "./components/ErrorBoundary";
-import { ThemeProvider } from "./contexts/ThemeContext";
-import Home from "./pages/Home";
-import MapPage from "./pages/MapPage";
-import AddressesPage from "./pages/AddressesPage";
-import AnalyticsPage from "./pages/AnalyticsPage";
-import SettingsPage from "./pages/SettingsPage";
-import LandingPage from "./pages/LandingPage";
-import LoginPage from "./pages/LoginPage";
-import SatelliteDataIngestionPage from "./pages/SatelliteDataIngestionPage";
-import { useAuth } from "./_core/hooks/useAuth";
+import ErrorBoundary from "@/components/ErrorBoundary";
+import { ThemeProvider } from "@/contexts/ThemeContext";
+import Home from "@/pages/Home";
+import MapPage from "@/pages/MapPage";
+import AddressesPage from "@/pages/AddressesPage";
+import AnalyticsPage from "@/pages/AnalyticsPage";
+import SettingsPage from "@/pages/SettingsPage";
+import LandingPage from "@/pages/LandingPage";
+import LoginPage from "@/pages/LoginPage";
+import SatelliteDataIngestionPage from "@/pages/SatelliteDataIngestionPage";
+import { useAuth } from "@/_core/hooks/useAuth";
 
 function Router() {
   const { isAuthenticated } = useAuth();

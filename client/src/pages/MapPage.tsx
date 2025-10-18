@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Search, Filter, MapPin, CheckCircle, Clock, AlertTriangle, XCircle } from "lucide-react";
+import { Search, Filter, MapPin, CheckCircle, Clock, AlertTriangle, XCircle, Globe } from "lucide-react";
 
 export default function MapPage() {
   const [provinceFilter, setProvinceFilter] = useState<string | undefined>(undefined);
@@ -38,27 +38,38 @@ export default function MapPage() {
     <DashboardLayout>
       <div className="flex flex-col gap-6 h-[calc(100vh-8rem)]">
         {/* Header */}
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Interactive Map</h1>
-          <p className="text-muted-foreground">Explore addresses across the Democratic Republic of the Congo</p>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Interactive Map</h1>
+            <p className="text-muted-foreground">Explore addresses across the Democratic Republic of the Congo</p>
+          </div>
+
+          {/* Quick Stats */}
+          <div className="flex items-center gap-4 text-sm">
+            <div className="flex items-center gap-2">
+              <MapPin className="h-4 w-4 text-primary" />
+              <span className="text-muted-foreground">
+                <strong className="text-foreground">{addresses.length.toLocaleString()}</strong> addresses
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Globe className="h-4 w-4 text-primary" />
+              <span className="text-muted-foreground">
+                <strong className="text-foreground">{total.toLocaleString()}</strong> total
+              </span>
+            </div>
+          </div>
         </div>
 
-        {/* Filters */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Filter className="h-5 w-5" />
-              Filters
-            </CardTitle>
-            <CardDescription>Filter addresses by province, status, or search</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-4 md:grid-cols-3">
+        {/* Filters - More compact */}
+        <Card className="dashboard-card">
+          <CardContent className="p-4">
+            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
               {/* Province Filter */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Province</label>
+              <div className="flex items-center gap-2 min-w-0 flex-1">
+                <Filter className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                 <Select value={provinceFilter || "all"} onValueChange={(v) => setProvinceFilter(v === "all" ? undefined : v)}>
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full sm:w-[180px]">
                     <SelectValue placeholder="All Provinces" />
                   </SelectTrigger>
                   <SelectContent>
@@ -73,10 +84,9 @@ export default function MapPage() {
               </div>
 
               {/* Status Filter */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Verification Status</label>
+              <div className="flex items-center gap-2 min-w-0 flex-1">
                 <Select value={statusFilter || "all"} onValueChange={(v) => setStatusFilter(v === "all" ? undefined : v)}>
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full sm:w-[180px]">
                     <SelectValue placeholder="All Statuses" />
                   </SelectTrigger>
                   <SelectContent>
@@ -96,9 +106,8 @@ export default function MapPage() {
               </div>
 
               {/* Search */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Search</label>
-                <div className="relative">
+              <div className="flex items-center gap-2 min-w-0 flex-1 max-w-md">
+                <div className="relative flex-1">
                   <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                   <Input
                     placeholder="Search addresses..."
@@ -108,28 +117,20 @@ export default function MapPage() {
                   />
                 </div>
               </div>
-            </div>
 
-            {/* Results Summary */}
-            <div className="mt-4 flex items-center justify-between">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <MapPin className="h-4 w-4" />
-                <span>
-                  Showing <strong>{addresses.length.toLocaleString()}</strong> of{" "}
-                  <strong>{total.toLocaleString()}</strong> addresses
-                </span>
-              </div>
+              {/* Clear Filters */}
               {(provinceFilter || statusFilter || searchQuery) && (
                 <Button
-                  variant="ghost"
+                  variant="outline"
                   size="sm"
                   onClick={() => {
                     setProvinceFilter(undefined);
                     setStatusFilter(undefined);
                     setSearchQuery("");
                   }}
+                  className="flex-shrink-0"
                 >
-                  Clear Filters
+                  Clear
                 </Button>
               )}
             </div>
@@ -137,13 +138,13 @@ export default function MapPage() {
         </Card>
 
         {/* Map */}
-        <Card className="flex-1 min-h-0">
+        <Card className="flex-1 min-h-0 dashboard-card">
           <CardContent className="p-0 h-full">
             {isLoading ? (
               <div className="h-full flex items-center justify-center">
                 <div className="text-center space-y-4">
-                  <Skeleton className="h-12 w-12 rounded-full mx-auto" />
-                  <Skeleton className="h-4 w-48 mx-auto" />
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+                  <p className="text-muted-foreground">Loading map data...</p>
                 </div>
               </div>
             ) : (
