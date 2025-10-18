@@ -28,7 +28,9 @@ import {
   getDashboardStats,
   getTrainingProgress,
   upsertTrainingProgress,
+  getTrainingModuleImage,
 } from "./db";
+import { ensureModulePageImage } from "./_core/images";
 
 export const appRouter = router({
   system: systemRouter,
@@ -287,6 +289,30 @@ export const appRouter = router({
       .mutation(async ({ input }) => {
         const result = await synthesizeSpeech(input);
         return result;
+      }),
+
+    getPageImage: publicProcedure
+      .input(z.object({ moduleId: z.string(), pageIndex: z.number().int().min(0) }))
+      .query(async ({ input }) => {
+        try {
+          const row = await getTrainingModuleImage(input.moduleId, input.pageIndex);
+          return row?.url ? { url: row.url } : { url: null } as const;
+        } catch (err) {
+          console.warn("[training.getPageImage]", (err as Error)?.message);
+          return { url: null } as const;
+        }
+      }),
+
+    generatePageImage: protectedProcedure
+      .input(z.object({ moduleId: z.string(), pageIndex: z.number().int().min(0), prompt: z.string().min(4) }))
+      .mutation(async ({ input }) => {
+        try {
+          const out = await ensureModulePageImage(input.moduleId, input.pageIndex, input.prompt);
+          return { url: out.url, provider: out.provider } as const;
+        } catch (err) {
+          console.warn("[training.generatePageImage]", (err as Error)?.message);
+          throw new Error("Failed to generate image");
+        }
       }),
 
     getProgress: protectedProcedure.query(async ({ ctx }) => {

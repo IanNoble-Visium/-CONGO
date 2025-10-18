@@ -170,6 +170,23 @@ export const trainingProgress = pgTable(
   })
 );
 
+// Training module/page images (AI generated or curated)
+export const trainingModuleImages = pgTable(
+  "trainingModuleImages",
+  {
+    moduleId: varchar("moduleId", { length: 64 }).notNull(),
+    pageIndex: integer("pageIndex").notNull(),
+    url: text("url").notNull(),
+    provider: varchar("provider", { length: 32 }).default("openai"),
+    prompt: text("prompt"),
+    publicId: varchar("publicId", { length: 256 }),
+    createdAt: timestamp("createdAt").defaultNow(),
+  },
+  (t) => ({
+    pk: primaryKey({ columns: [t.moduleId, t.pageIndex] }),
+  })
+);
+
 // Export types
 export type Province = typeof provinces.$inferSelect;
 export type InsertProvince = typeof provinces.$inferInsert;
@@ -191,3 +208,5 @@ export type ChangeLogEntry = typeof changeLog.$inferSelect;
 export type InsertChangeLogEntry = typeof changeLog.$inferInsert;
 export type TrainingProgress = typeof trainingProgress.$inferSelect;
 export type InsertTrainingProgress = typeof trainingProgress.$inferInsert;
+export type TrainingModuleImage = typeof trainingModuleImages.$inferSelect;
+export type InsertTrainingModuleImage = typeof trainingModuleImages.$inferInsert;

@@ -291,3 +291,102 @@ For questions or issues related to the DRC infrastructure modernization project,
 ## License
 
 Proprietary - Visium Technologies
+
+## Training Media: AI Images and Cloudinary
+
+This project can automatically generate illustrative images for training modules/pages that do not have a b-roll video.
+
+- **Provider options**: OpenAI Images (default) or Recraft
+- **Storage**: Cloudinary (signed uploads)
+- **Display**: If a page has no video, its background uses a dimmed/blurred image from Cloudinary
+- **Persistence**: Saved in the `trainingModuleImages` table keyed by `moduleId` and `pageIndex`
+
+### Environment variables
+
+Add these to `.env` (see `.env.example` for comments):
+
+```env
+IMAGE_PROVIDER=openai            # or recraft
+
+# OpenAI (if IMAGE_PROVIDER=openai)
+OPENAI_API_KEY=...
+OPENAI_IMAGE_MODEL=gpt-image-1
+
+# Recraft (if IMAGE_PROVIDER=recraft)
+RECRAFT_API_URL=...
+RECRAFT_API_KEY=...
+
+# Cloudinary (always required for uploads)
+CLOUDINARY_CLOUD_NAME=...
+CLOUDINARY_API_KEY=...
+CLOUDINARY_API_SECRET=...
+CLOUDINARY_FOLDER=training
+```
+
+### Server endpoints
+
+- `training.getPageImage({ moduleId, pageIndex })` → `{ url: string | null }`
+- `training.generatePageImage({ moduleId, pageIndex, prompt })` → `{ url, provider }`
+
+Notes:
+- Generation checks for an existing record and will not overwrite existing images.
+- If DB is missing, `getPageImage` safely returns `{ url: null }`.
+
+### Database
+
+- `trainingModuleImages` — stores `moduleId`, `pageIndex`, `url`, `provider`, `prompt`, `publicId`, `createdAt`.
+- `trainingProgress` — per-user module/page progress.
+
+Run migrations to create these tables (see `drizzle/schema.ts`).
+
+### Client behavior
+
+- When a training page has no video, the UI tries to load an image via `getPageImage`.
+- If none exists and the user is authenticated, a "Generate" button appears to invoke `generatePageImage` using a prompt derived from the page title/body.
+
+---
+
+## Training Roadmap and Open Suggestions
+
+Below are improvements and ideas to consider. Items marked with ✅ are implemented.
+
+- **Content source**
+  - ✅ Load content from JSON files (`client/public/training/training.en.json`, `training.fr.json`)
+  - Suggestion: Support Markdown or CMS-based content to enable non-developer edits
+
+- **Media handling**
+  - ✅ B‑roll videos as subtle background
+  - ✅ AI image generation + Cloudinary uploads for pages without videos
+  - Suggestion: Batch pre-generation script/endpoint to generate images for all modules at once
+  - Suggestion: Add alt text generation and captions summary for accessibility
+
+- **Narration / Audio**
+  - ✅ Auto‑play narration on page open (subject to browser policies)
+  - ✅ TTS voice validation and retry logic
+  - Suggestion: Cache TTS audio per page/language and prefetch the next page
+  - Suggestion: Optional one-time "Enable Audio" handshake for stricter autoplay policies
+
+- **Progress and analytics**
+  - ✅ Server‑persisted progress with database + local resume
+  - Suggestion: `trainingEvents` table to track dwell time, quiz correctness rates, and drop-off
+  - Suggestion: Throttle/batch `saveProgress` to reduce write frequency during fast navigation
+
+- **Assessments**
+  - ✅ Per‑page quizzes with pass/fail badges
+  - Suggestion: Aggregate per‑module scoring and award achievements/badges upon mastery
+
+- **Completion**
+  - ✅ Completion banner and certificate dialog with print option
+  - Suggestion: Export certificate as image/PDF and optional share link
+
+- **Accessibility (a11y)**
+  - ✅ ARIA labels on controls; keyboard focus outlines
+  - Suggestion: Announce page change via `aria-live`; verify color contrast on all backgrounds; ensure no keyboard traps; add descriptive alt text for generated images
+
+- **Performance**
+  - Suggestion: Preload next page media (video/image/audio) and preconnect to Cloudinary
+  - Suggestion: Lazy-load background media at reduced resolution with fade‑in
+
+- **Dev experience**
+  - Suggestion: Add tests for dialog navigation, autoplay fallback, and quiz logic
+  - Suggestion: Admin page to review/regenerate training images, re-upload to Cloudinary, and set alt text

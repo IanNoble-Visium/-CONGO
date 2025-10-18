@@ -14,6 +14,7 @@ import {
   aiProcessingJobs,
   changeLog,
   trainingProgress,
+  trainingModuleImages,
   type Province,
   type Address,
   type Building,
@@ -25,6 +26,7 @@ import {
   type InsertPhoto,
   type InsertSurveySession,
   type TrainingProgress,
+  type TrainingModuleImage,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 
@@ -42,6 +44,44 @@ export async function getDb() {
     }
   }
   return _db;
+}
+
+// ========== Training Module Images ==========
+
+export async function getTrainingModuleImage(moduleId: string, pageIndex: number): Promise<TrainingModuleImage | undefined> {
+  const db = await getDb();
+  if (!db) return undefined;
+  const res = await db
+    .select()
+    .from(trainingModuleImages)
+    .where(and(eq(trainingModuleImages.moduleId, moduleId), eq(trainingModuleImages.pageIndex, pageIndex)))
+    .limit(1);
+  return res[0];
+}
+
+export async function saveTrainingModuleImage(params: {
+  moduleId: string;
+  pageIndex: number;
+  url: string;
+  provider?: string;
+  prompt?: string;
+  publicId?: string | null;
+}): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+  const existing = await getTrainingModuleImage(params.moduleId, params.pageIndex);
+  if (existing) {
+    // Do not overwrite existing URL; just return
+    return;
+  }
+  await db.insert(trainingModuleImages).values({
+    moduleId: params.moduleId,
+    pageIndex: params.pageIndex,
+    url: params.url,
+    provider: params.provider ?? "openai",
+    prompt: params.prompt ?? null as any,
+    publicId: params.publicId ?? null as any,
+  });
 }
 
 // ========== Training Progress ==========

@@ -394,7 +394,7 @@ export default function TrainingPage() {
               maxHeight: '90vh',
             }}
           >
-            {/* Background b-roll */}
+            {/* Background media: video or generated image */}
             {currentPage?.videoUrl && (
               <video
                 ref={bgVideoRef}
@@ -405,6 +405,9 @@ export default function TrainingPage() {
                 muted
                 loop
               />
+            )}
+            {active && currentPage && !currentPage.videoUrl && (
+              <PageImageBackground moduleId={active.id} pageIndex={activePageIndex} title={currentPage.title} body={currentPage.body} canGenerate={!!isAuthenticated} />
             )}
             {active && currentPage && (
               <>
@@ -557,5 +560,32 @@ function QuizSection({ moduleId, pageIndex, quiz, language, onResult }: { module
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+function PageImageBackground({ moduleId, pageIndex, title, body, canGenerate }: { moduleId: string; pageIndex: number; title: string; body: string; canGenerate: boolean }) {
+  const { t } = useLanguage();
+  const query = trpc.training.getPageImage.useQuery({ moduleId, pageIndex }, { enabled: !!moduleId || pageIndex >= 0 });
+  const gen = trpc.training.generatePageImage.useMutation();
+  const prompt = `${title}. ${body}`.slice(0, 800);
+  const url = query.data?.url || null;
+  return (
+    <>
+      {url ? (
+        <img src={url} alt="Training illustration" className="absolute inset-0 -z-10 h-full w-full object-cover opacity-25 blur-sm pointer-events-none" />
+      ) : (
+        canGenerate && (
+          <div className="absolute inset-0 -z-10 flex items-center justify-center">
+            <Button
+              variant="outline"
+              onClick={() => gen.mutate({ moduleId, pageIndex, prompt }, { onSuccess: () => query.refetch() })}
+              disabled={gen.isLoading}
+            >
+              {gen.isLoading ? (t("common.loading") || "Generating...") : (t("training.generateImage") || "Generate illustrative image")}
+            </Button>
+          </div>
+        )
+      )}
+    </>
   );
 }
