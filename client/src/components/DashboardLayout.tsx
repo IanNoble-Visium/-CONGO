@@ -1,4 +1,5 @@
 import { useAuth } from "@/_core/hooks/useAuth";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -21,7 +22,7 @@ import {
 } from "@/components/ui/sidebar";
 import { APP_LOGO, APP_TITLE } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
-import { LayoutDashboard, LogOut, PanelLeft, Map, MapPin, BarChart3, Settings, Satellite } from "lucide-react";
+import { LayoutDashboard, LogOut, PanelLeft, Map, MapPin, BarChart3, Settings, Satellite, Languages } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
@@ -29,12 +30,12 @@ import { Button } from "./ui/button";
 import SatelliteDataModal from "./SatelliteDataModal";
 
 const menuItems = [
-  { icon: LayoutDashboard, label: "Dashboard", path: "/" },
-  { icon: Map, label: "Map View", path: "/map" },
-  { icon: MapPin, label: "Addresses", path: "/addresses" },
-  { icon: Satellite, label: "Satellite Data", path: "/satellites" },
-  { icon: BarChart3, label: "Analytics", path: "/analytics" },
-  { icon: Settings, label: "Settings", path: "/settings" },
+  { icon: LayoutDashboard, labelKey: "nav.dashboard" as const, path: "/" },
+  { icon: Map, labelKey: "nav.mapView" as const, path: "/map" },
+  { icon: MapPin, labelKey: "nav.addresses" as const, path: "/addresses" },
+  { icon: Satellite, labelKey: "nav.satelliteData" as const, path: "/satellites" },
+  { icon: BarChart3, labelKey: "nav.analytics" as const, path: "/analytics" },
+  { icon: Settings, labelKey: "nav.settings" as const, path: "/settings" },
 ];
 
 const SIDEBAR_WIDTH_KEY = "sidebar-width";
@@ -52,6 +53,7 @@ export default function DashboardLayout({
     return saved ? parseInt(saved, 10) : DEFAULT_WIDTH;
   });
   const { loading, user } = useAuth();
+  const { t } = useLanguage();
 
   useEffect(() => {
     localStorage.setItem(SIDEBAR_WIDTH_KEY, sidebarWidth.toString());
@@ -78,7 +80,7 @@ export default function DashboardLayout({
             <div className="text-center space-y-2">
               <h1 className="text-2xl font-bold tracking-tight">{APP_TITLE}</h1>
               <p className="text-sm text-muted-foreground">
-                Please sign in to continue
+                {t("auth.pleaseSignIn")}
               </p>
             </div>
           </div>
@@ -89,7 +91,7 @@ export default function DashboardLayout({
             size="lg"
             className="w-full shadow-lg hover:shadow-xl transition-all"
           >
-            Sign in
+            {t("auth.signIn")}
           </Button>
         </div>
       </div>
@@ -121,6 +123,7 @@ function DashboardLayoutContent({
   setSidebarWidth,
 }: DashboardLayoutContentProps) {
   const { user, logout } = useAuth();
+  const { language, toggleLanguage, t } = useLanguage();
   const [location, setLocation] = useLocation();
   const { state, toggleSidebar } = useSidebar();
   const isCollapsed = state === "collapsed";
@@ -229,13 +232,13 @@ function DashboardLayoutContent({
                           setLocation(item.path);
                         }
                       }}
-                      tooltip={item.label}
+                      tooltip={t(item.labelKey)}
                       className={`h-10 transition-all font-normal`}
                     >
                       <item.icon
                         className={`h-4 w-4 ${isActive ? "text-primary" : ""}`}
                       />
-                      <span>{item.label}</span>
+                      <span>{t(item.labelKey)}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 );
@@ -243,7 +246,38 @@ function DashboardLayoutContent({
             </SidebarMenu>
           </SidebarContent>
 
-          <SidebarFooter className="p-3">
+          <SidebarFooter className="p-3 space-y-2">
+            <div className="px-2 pb-2 border-b">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full justify-start gap-2 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-2"
+                    title={t("language.toggle")}
+                  >
+                    <Languages className="h-4 w-4 shrink-0" />
+                    <span className="group-data-[collapsible=icon]:hidden text-xs font-medium">
+                      {language === "en" ? "English" : "Français"}
+                    </span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-32">
+                  <DropdownMenuItem
+                    onClick={() => language !== "en" && toggleLanguage()}
+                    className={`cursor-pointer ${language === "en" ? "bg-accent" : ""}`}
+                  >
+                    <span>{t("language.english")}</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => language !== "fr" && toggleLanguage()}
+                    className={`cursor-pointer ${language === "fr" ? "bg-accent" : ""}`}
+                  >
+                    <span>{t("language.french")}</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center gap-3 rounded-lg px-1 py-1 hover:bg-accent/50 transition-colors w-full text-left group-data-[collapsible=icon]:justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-ring">
@@ -268,7 +302,7 @@ function DashboardLayoutContent({
                   className="cursor-pointer text-destructive focus:text-destructive"
                 >
                   <LogOut className="mr-2 h-4 w-4" />
-                  <span>Sign out</span>
+                  <span>{t("auth.signOut")}</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -292,11 +326,20 @@ function DashboardLayoutContent({
               <div className="flex items-center gap-3">
                 <div className="flex flex-col gap-1">
                   <span className="tracking-tight text-foreground">
-                    {activeMenuItem?.label ?? APP_TITLE}
+                    {activeMenuItem ? t(activeMenuItem.labelKey) : APP_TITLE}
                   </span>
                 </div>
               </div>
             </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={toggleLanguage}
+              className="h-9 w-9 p-0"
+              title={t("language.toggle")}
+            >
+              <Languages className="h-4 w-4" />
+            </Button>
           </div>
         )}
         <main className="flex-1 p-4">{children}</main>

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
+import { useLanguage } from "@/contexts/LanguageContext";
 import DashboardLayout from "@/components/DashboardLayout";
 import MapView from "@/components/MapView";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,6 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Search, Filter, MapPin, CheckCircle, Clock, AlertTriangle, XCircle, Globe } from "lucide-react";
 
 export default function MapPage() {
+  const { t } = useLanguage();
   const [provinceFilter, setProvinceFilter] = useState<string | undefined>(undefined);
   const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
   const [searchQuery, setSearchQuery] = useState("");
@@ -27,11 +29,11 @@ export default function MapPage() {
   const total = addressData?.total || 0;
 
   const statusOptions = [
-    { value: "all", label: "All Statuses", icon: MapPin },
-    { value: "verified", label: "Verified", icon: CheckCircle },
-    { value: "pending", label: "Pending", icon: Clock },
-    { value: "unverified", label: "Unverified", icon: XCircle },
-    { value: "disputed", label: "Disputed", icon: AlertTriangle },
+    { value: "all", label: t("map.allStatuses"), icon: MapPin },
+    { value: "verified", label: t("map.verified"), icon: CheckCircle },
+    { value: "pending", label: t("map.pending"), icon: Clock },
+    { value: "unverified", label: t("map.unverified"), icon: XCircle },
+    { value: "disputed", label: t("map.disputed"), icon: AlertTriangle },
   ];
 
   return (
@@ -40,8 +42,8 @@ export default function MapPage() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Interactive Map</h1>
-            <p className="text-muted-foreground">Explore addresses across the Democratic Republic of the Congo</p>
+            <h1 className="text-3xl font-bold tracking-tight">{t("map.title")}</h1>
+            <p className="text-muted-foreground">{t("map.subtitle")}</p>
           </div>
 
           {/* Quick Stats */}
@@ -49,7 +51,7 @@ export default function MapPage() {
             <div className="flex items-center gap-2">
               <MapPin className="h-4 w-4 text-primary" />
               <span className="text-muted-foreground">
-                <strong className="text-foreground">{addresses.length.toLocaleString()}</strong> addresses
+                <strong className="text-foreground">{addresses.length.toLocaleString()}</strong> {t("map.addresses")}
               </span>
             </div>
             <div className="flex items-center gap-2">
@@ -73,7 +75,7 @@ export default function MapPage() {
                     <SelectValue placeholder="All Provinces" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Provinces</SelectItem>
+                    <SelectItem value="all">{t("map.allProvinces")}</SelectItem>
                     {provinces?.map((province) => (
                       <SelectItem key={province.id} value={province.id}>
                         {province.name}
@@ -110,7 +112,7 @@ export default function MapPage() {
                 <div className="relative flex-1">
                   <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                   <Input
-                    placeholder="Search addresses..."
+                    placeholder={t("map.searchAddresses")}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="pl-8"
@@ -130,7 +132,7 @@ export default function MapPage() {
                   }}
                   className="flex-shrink-0"
                 >
-                  Clear
+                  {t("common.reset")}
                 </Button>
               )}
             </div>
@@ -144,7 +146,7 @@ export default function MapPage() {
               <div className="h-full flex items-center justify-center">
                 <div className="text-center space-y-4">
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-                  <p className="text-muted-foreground">Loading map data...</p>
+                  <p className="text-muted-foreground">{t("map.loading")}</p>
                 </div>
               </div>
             ) : (
@@ -166,4 +168,3 @@ export default function MapPage() {
     </DashboardLayout>
   );
 }
-
