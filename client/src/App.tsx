@@ -11,6 +11,7 @@ import AnalyticsPage from "./pages/AnalyticsPage";
 import SettingsPage from "./pages/SettingsPage";
 import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
+import SatelliteDataIngestionPage from "./pages/SatelliteDataIngestionPage";
 import { useAuth } from "./_core/hooks/useAuth";
 
 function Router() {
@@ -23,6 +24,7 @@ function Router() {
       <Route path={"/map"} component={MapPage} />
       <Route path={"/addresses"} component={AddressesPage} />
       <Route path={"/analytics"} component={AnalyticsPage} />
+      <Route path={"/satellites"} component={SatelliteDataIngestionPage} />
       <Route path={"/settings"} component={SettingsPage} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
