@@ -46,7 +46,12 @@ async function startServer() {
   );
   // development mode uses Vite, production mode uses static files
   if (process.env.NODE_ENV === "development") {
-    await setupVite(app, server);
+    try {
+      await setupVite(app, server);
+    } catch (error) {
+      console.warn("Vite not available, falling back to static mode:", error.message);
+      serveStatic(app);
+    }
   } else {
     serveStatic(app);
   }

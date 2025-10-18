@@ -4,8 +4,6 @@ import { type Server } from "http";
 import { nanoid } from "nanoid";
 import path from "path";
 import { fileURLToPath } from "url";
-import { createServer as createViteServer } from "vite";
-import viteConfig from "../../vite.config";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -16,11 +14,18 @@ export async function setupVite(app: Express, server: Server) {
     allowedHosts: true as const,
   };
 
+  // Dynamic import to avoid bundling Vite in production
+  const { createServer: createViteServer } = await import("vite");
+
   const vite = await createViteServer({
-    ...viteConfig,
     configFile: false,
     server: serverOptions,
     appType: "custom",
+    // Minimal config to avoid importing the full vite config
+    plugins: [], // We'll rely on the client build for this
+    build: {
+      outDir: "dist/public",
+    },
   });
 
   app.use(vite.middlewares);
