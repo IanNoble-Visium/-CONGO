@@ -1,6 +1,6 @@
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
-import { appRouter } from "../server/routers.js";
-import { createContext } from "../server/_core/context.js";
+import { appRouter } from "../dist/index.js";
+import { createContext } from "../dist/_core/context.js";
 
 export default async function handler(req, res) {
   // Set CORS headers
@@ -17,7 +17,7 @@ export default async function handler(req, res) {
   try {
     // Convert Vercel request to Fetch API request
     const url = new URL(req.url, `http://${req.headers.host}`);
-    
+
     const fetchRequest = new Request(url, {
       method: req.method,
       headers: new Headers(req.headers),
@@ -36,7 +36,7 @@ export default async function handler(req, res) {
     fetchResponse.headers.forEach((value, key) => {
       res.setHeader(key, value);
     });
-    
+
     const body = await fetchResponse.text();
     res.send(body);
   } catch (error) {

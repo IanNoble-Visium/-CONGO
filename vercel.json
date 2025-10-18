@@ -1,5 +1,5 @@
 {
-  "buildCommand": "pnpm exec vite build",
+  "buildCommand": "pnpm run build",
   "devCommand": "pnpm run dev",
   "outputDirectory": "dist/public",
   "functions": {
