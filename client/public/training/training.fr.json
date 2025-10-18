@@ -1,0 +1,139 @@
+{
+  "modules": [
+    {
+      "id": "intro",
+      "title": "Introduction",
+      "summary": "Vue d'ensemble du projet et de sa mission.",
+      "pages": [
+        {
+          "title": "Pourquoi CongoAddressMapper",
+          "body": "Un système national d'adressage pour relier les citoyens, améliorer les services publics et stimuler l'économie.",
+          "keywords": ["kinshasa", "gombe", "boulevard", "monument", "tower", "capital"]
+        },
+        {
+          "title": "Ce que vous verrez",
+          "body": "Une plateforme cartographique, des données d'adresses vérifiées, et des outils d'analyse pour le suivi.",
+          "keywords": ["gombe", "kinshasa", "street"]
+        },
+        {
+          "title": "Votre rôle",
+          "body": "Apprendre, participer à la vérification, et utiliser la plateforme pour vos besoins quotidiens.",
+          "keywords": ["interactive", "mobile"]
+        }
+      ]
+    },
+    {
+      "id": "how-to-use",
+      "title": "Comment utiliser",
+      "summary": "Guide étape par étape pour utiliser la plateforme.",
+      "pages": [
+        {
+          "title": "Navigation de la carte",
+          "body": "Panoramique, zoom, et recherche par mot-clé pour trouver des adresses et quartiers.",
+          "keywords": ["map", "gps", "interactive", "street"],
+          "quiz": {
+            "question": "Quelle action aide à localiser rapidement une adresse ?",
+            "options": ["Zoom seulement", "Panoramique et zoom", "Zoom et recherche", "Recherche seulement"],
+            "answerIndex": 2
+          }
+        },
+        {
+          "title": "Détails d'adresse",
+          "body": "Consultez les informations d'adresse, le statut de vérification et les photos associées.",
+          "keywords": ["database", "digital"]
+        },
+        {
+          "title": "Vérification et suivi",
+          "body": "Marquez comme vérifié, suivez la progression par province et utilisez les tableaux de bord.",
+          "keywords": ["data", "analytics", "community"],
+          "quiz": {
+            "question": "Où trouver la progression de vérification par province ?",
+            "options": ["Page carte", "Liste des adresses", "Tableau de bord analytique", "Paramètres"],
+            "answerIndex": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "how-it-works",
+      "title": "Fonctionnement",
+      "summary": "Architecture et flux de données.",
+      "pages": [
+        {
+          "title": "Sources de données",
+          "body": "Données importées, recensement terrain, IA et contributions communautaires.",
+          "keywords": ["ai", "digital", "data"]
+        },
+        {
+          "title": "Pipeline et qualité",
+          "body": "Nettoyage, normalisation, géocodage, puis vérification et audit.",
+          "keywords": ["database", "gps"],
+          "quiz": {
+            "question": "Quel élément fait partie du pipeline de données ?",
+            "options": ["Échantillonnage aléatoire", "Normalisation", "Ignorer les valeurs aberrantes", "Manuel uniquement"],
+            "answerIndex": 1
+          }
+        },
+        {
+          "title": "Gouvernance",
+          "body": "Rôles, permissions et journalisation des changements pour la transparence.",
+          "keywords": ["government"]
+        }
+      ]
+    },
+    {
+      "id": "benefits",
+      "title": "Bénéfices",
+      "summary": "Bénéfices clés pour citoyens et institutions.",
+      "pages": [
+        {
+          "title": "Télécoms et services",
+          "body": "Meilleure connectivité, services d'urgence plus rapides, et logistique améliorée.",
+          "keywords": ["telecommunications", "emergency"]
+        },
+        {
+          "title": "Finance et gouvernement",
+          "body": "Inclusion financière, services bancaires, et efficacité gouvernementale.",
+          "keywords": ["banking", "government"]
+        },
+        {
+          "title": "Communautés et économie",
+          "body": "Développement local, e-commerce, et innovation numérique.",
+          "keywords": ["community", "digital"],
+          "quiz": {
+            "question": "Quel bénéfice soutient les entreprises locales ?",
+            "options": ["Activation du e-commerce", "Moins de cartographie", "Données fermées", "Paperasse manuelle"],
+            "answerIndex": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "roadmap",
+      "title": "Feuille de route",
+      "summary": "Prochaines étapes et feuille de route.",
+      "pages": [
+        {
+          "title": "Phase actuelle",
+          "body": "Cartographie prioritaire des zones urbaines clés et amélioration des outils.",
+          "keywords": ["kinshasa", "gombe"]
+        },
+        {
+          "title": "Expansion",
+          "body": "Extension vers d'autres provinces, intégrations API et partenariats sectoriels.",
+          "keywords": ["future"],
+          "quiz": {
+            "question": "Quel est un axe de la feuille de route ?",
+            "options": ["Réduire la couverture", "Étendre aux provinces", "Supprimer l'analytique", "Arrêter les intégrations"],
+            "answerIndex": 1
+          }
+        },
+        {
+          "title": "Engagement",
+          "body": "Programmes de formation, retours des utilisateurs, et amélioration continue.",
+          "keywords": ["community"]
+        }
+      ]
+    }
+  ]
+}

@@ -20,6 +20,7 @@ export const useDialogComposition = () =>
   React.useContext(DialogCompositionContext);
 
 function Dialog({
+  children,
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Root>) {
   const composingRef = React.useRef(false);
@@ -48,7 +49,9 @@ function Dialog({
 
   return (
     <DialogCompositionContext.Provider value={contextValue}>
-      <DialogPrimitive.Root data-slot="dialog" {...props} />
+      <DialogPrimitive.Root data-slot="dialog" {...props}>
+        {children}
+      </DialogPrimitive.Root>
     </DialogCompositionContext.Provider>
   );
 }

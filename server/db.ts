@@ -13,6 +13,7 @@ import {
   surveySessions,
   aiProcessingJobs,
   changeLog,
+  trainingProgress,
   type Province,
   type Address,
   type Building,
@@ -23,6 +24,7 @@ import {
   type InsertBuilding,
   type InsertPhoto,
   type InsertSurveySession,
+  type TrainingProgress,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 
@@ -40,6 +42,42 @@ export async function getDb() {
     }
   }
   return _db;
+}
+
+// ========== Training Progress ==========
+
+export async function getTrainingProgress(userId: string): Promise<TrainingProgress[]> {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(trainingProgress).where(eq(trainingProgress.userId, userId));
+}
+
+export async function upsertTrainingProgress(params: {
+  userId: string;
+  moduleId: string;
+  lastPage: number;
+  completedPages: number;
+  totalPages: number;
+  quizScores?: Record<string, unknown> | null;
+}): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+  const { userId, moduleId, lastPage, completedPages, totalPages, quizScores } = params;
+
+  const existing = await db
+    .select()
+    .from(trainingProgress)
+    .where(and(eq(trainingProgress.userId, userId), eq(trainingProgress.moduleId, moduleId)))
+    .limit(1);
+
+  if (existing.length > 0) {
+    await db
+      .update(trainingProgress)
+      .set({ lastPage, completedPages, totalPages, quizScores: quizScores ?? existing[0].quizScores, updatedAt: new Date() })
+      .where(and(eq(trainingProgress.userId, userId), eq(trainingProgress.moduleId, moduleId)));
+  } else {
+    await db.insert(trainingProgress).values({ userId, moduleId, lastPage, completedPages, totalPages, quizScores: quizScores ?? null });
+  }
 }
 
 export async function upsertUser(user: InsertUser): Promise<void> {

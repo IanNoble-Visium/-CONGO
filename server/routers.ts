@@ -26,6 +26,8 @@ import {
   getAddressStatsByProvince,
   getDataSourceStats,
   getDashboardStats,
+  getTrainingProgress,
+  upsertTrainingProgress,
 } from "./db";
 
 export const appRouter = router({
@@ -285,6 +287,41 @@ export const appRouter = router({
       .mutation(async ({ input }) => {
         const result = await synthesizeSpeech(input);
         return result;
+      }),
+
+    getProgress: protectedProcedure.query(async ({ ctx }) => {
+      try {
+        return await getTrainingProgress(ctx.user.id);
+      } catch (err) {
+        console.warn("[training.getProgress] falling back to []:", (err as Error)?.message);
+        return [] as any[];
+      }
+    }),
+
+    saveProgress: protectedProcedure
+      .input(
+        z.object({
+          moduleId: z.string(),
+          lastPage: z.number().int().min(0),
+          completedPages: z.number().int().min(0),
+          totalPages: z.number().int().min(1),
+          quizScores: z.any().optional(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        try {
+          await upsertTrainingProgress({
+            userId: ctx.user.id,
+            moduleId: input.moduleId,
+            lastPage: input.lastPage,
+            completedPages: input.completedPages,
+            totalPages: input.totalPages,
+            quizScores: input.quizScores ?? null,
+          });
+        } catch (err) {
+          console.warn("[training.saveProgress] ignored due to DB error:", (err as Error)?.message);
+        }
+        return { success: true } as const;
       }),
   }),
 

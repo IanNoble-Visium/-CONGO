@@ -1,4 +1,4 @@
-import { decimal, integer, json, pgEnum, pgTable, text, timestamp, varchar } from "drizzle-orm/pg-core";
+import { decimal, integer, json, pgEnum, pgTable, text, timestamp, varchar, primaryKey } from "drizzle-orm/pg-core";
 
 /**
  * Core user table backing auth flow.
@@ -153,6 +153,23 @@ export const changeLog = pgTable("changeLog", {
   reason: text("reason"),
 });
 
+// Training progress per user and module
+export const trainingProgress = pgTable(
+  "trainingProgress",
+  {
+    userId: varchar("userId", { length: 64 }).notNull().references(() => users.id),
+    moduleId: varchar("moduleId", { length: 64 }).notNull(),
+    lastPage: integer("lastPage").default(0),
+    completedPages: integer("completedPages").default(0),
+    totalPages: integer("totalPages").default(0),
+    quizScores: json("quizScores"), // { [pageIndex]: { correct: boolean, selectedIndex: number } }
+    updatedAt: timestamp("updatedAt").defaultNow(),
+  },
+  (t) => ({
+    pk: primaryKey({ columns: [t.userId, t.moduleId] }),
+  })
+);
+
 // Export types
 export type Province = typeof provinces.$inferSelect;
 export type InsertProvince = typeof provinces.$inferInsert;
@@ -172,3 +189,5 @@ export type AiProcessingJob = typeof aiProcessingJobs.$inferSelect;
 export type InsertAiProcessingJob = typeof aiProcessingJobs.$inferInsert;
 export type ChangeLogEntry = typeof changeLog.$inferSelect;
 export type InsertChangeLogEntry = typeof changeLog.$inferInsert;
+export type TrainingProgress = typeof trainingProgress.$inferSelect;
+export type InsertTrainingProgress = typeof trainingProgress.$inferInsert;

@@ -1,0 +1,139 @@
+{
+  "modules": [
+    {
+      "id": "intro",
+      "title": "Introduction",
+      "summary": "Project overview and mission.",
+      "pages": [
+        {
+          "title": "Why CongoAddressMapper",
+          "body": "A national addressing system to connect citizens, improve public services, and boost the economy.",
+          "keywords": ["kinshasa", "gombe", "boulevard", "monument", "tower", "capital"]
+        },
+        {
+          "title": "What you'll see",
+          "body": "A mapping platform, verified address data, and analytics for tracking progress.",
+          "keywords": ["gombe", "kinshasa", "street"]
+        },
+        {
+          "title": "Your role",
+          "body": "Learn, help verify, and use the platform to support your daily work.",
+          "keywords": ["interactive", "mobile"]
+        }
+      ]
+    },
+    {
+      "id": "how-to-use",
+      "title": "How to Use",
+      "summary": "Step-by-step guide to using the platform.",
+      "pages": [
+        {
+          "title": "Navigating the map",
+          "body": "Pan, zoom, and use search to find addresses and neighborhoods.",
+          "keywords": ["map", "gps", "interactive", "street"],
+          "quiz": {
+            "question": "Which action helps you locate an address quickly?",
+            "options": ["Zoom only", "Pan and zoom", "Zoom and search", "Search only"],
+            "answerIndex": 2
+          }
+        },
+        {
+          "title": "Address details",
+          "body": "View address info, verification status, and associated photos.",
+          "keywords": ["database", "digital"]
+        },
+        {
+          "title": "Verification and tracking",
+          "body": "Mark as verified, track provincial progress, and use dashboards.",
+          "keywords": ["data", "analytics", "community"],
+          "quiz": {
+            "question": "Where do you find verification progress by province?",
+            "options": ["Map page", "Addresses list", "Analytics dashboard", "Settings"],
+            "answerIndex": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "how-it-works",
+      "title": "How it Works",
+      "summary": "Architecture and data flow.",
+      "pages": [
+        {
+          "title": "Data sources",
+          "body": "Imported datasets, field surveys, AI detection, and community contributions.",
+          "keywords": ["ai", "digital", "data"]
+        },
+        {
+          "title": "Pipeline and quality",
+          "body": "Cleaning, normalization, geocoding, then verification and audit.",
+          "keywords": ["database", "gps"],
+          "quiz": {
+            "question": "Which is part of our data pipeline?",
+            "options": ["Random sampling", "Normalization", "Ignoring outliers", "Manual only"],
+            "answerIndex": 1
+          }
+        },
+        {
+          "title": "Governance",
+          "body": "Roles, permissions, and change logs for transparency.",
+          "keywords": ["government"]
+        }
+      ]
+    },
+    {
+      "id": "benefits",
+      "title": "Benefits",
+      "summary": "Key benefits for citizens and institutions.",
+      "pages": [
+        {
+          "title": "Telecom and services",
+          "body": "Better connectivity, faster emergency services, and improved logistics.",
+          "keywords": ["telecommunications", "emergency"]
+        },
+        {
+          "title": "Finance and government",
+          "body": "Financial inclusion, banking services, and governmental efficiency.",
+          "keywords": ["banking", "government"]
+        },
+        {
+          "title": "Communities and economy",
+          "body": "Local development, e-commerce, and digital innovation.",
+          "keywords": ["community", "digital"],
+          "quiz": {
+            "question": "Which benefit supports local businesses?",
+            "options": ["E-commerce enablement", "Less mapping", "Closed data", "Manual paperwork"],
+            "answerIndex": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "roadmap",
+      "title": "Roadmap",
+      "summary": "Next steps and roadmap.",
+      "pages": [
+        {
+          "title": "Current phase",
+          "body": "Priority mapping of key urban zones and tooling improvements.",
+          "keywords": ["kinshasa", "gombe"]
+        },
+        {
+          "title": "Expansion",
+          "body": "Expansion to more provinces, API integrations, and sector partnerships.",
+          "keywords": ["future"],
+          "quiz": {
+            "question": "What is a roadmap focus?",
+            "options": ["Reduce coverage", "Expand to provinces", "Remove analytics", "Stop integrations"],
+            "answerIndex": 1
+          }
+        },
+        {
+          "title": "Engagement",
+          "body": "Training programs, user feedback loops, and continuous improvement.",
+          "keywords": ["community"]
+        }
+      ]
+    }
+  ]
+}
