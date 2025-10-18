@@ -124,17 +124,19 @@ export async function uploadToCloudinary(b64: string, options?: { folder?: strin
   return { url: json.secure_url || json.url, public_id: json.public_id };
 }
 
-export async function ensureModulePageImage(moduleId: string, pageIndex: number, prompt: string, size = "1024x1024") {
+export async function ensureModulePageImage(moduleId: string, pageIndex: number, prompt: string, size = "1024x1024", force = false) {
   try {
-    const existing = await getTrainingModuleImage(moduleId, pageIndex);
-    if (existing?.url) return existing;
+    if (!force) {
+      const existing = await getTrainingModuleImage(moduleId, pageIndex);
+      if (existing?.url) return existing;
+    }
   } catch {}
   const drcContext = "Democratic Republic of the Congo context: Kinshasa or Lubumbashi urban scenes, Congolese people and communities, local architecture and street life, DRC landmarks and geography; culturally respectful, authentic, modern, documentary style";
   const finalPrompt = `${prompt}. ${drcContext}`.slice(0, 900);
   const { b64, provider } = await generateImageB64(finalPrompt, size);
   const { url, public_id } = await uploadToCloudinary(b64, { folder: ENV.cloudinaryFolder, publicId: `${moduleId}_${pageIndex}` });
   try {
-    await saveTrainingModuleImage({ moduleId, pageIndex, url, provider, prompt: finalPrompt, publicId: public_id });
+    await saveTrainingModuleImage({ moduleId, pageIndex, url, provider, prompt: finalPrompt, publicId: public_id, force });
   } catch {}
   return { moduleId, pageIndex, url, provider, prompt: finalPrompt, publicId: public_id };
 }

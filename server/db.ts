@@ -66,22 +66,34 @@ export async function saveTrainingModuleImage(params: {
   provider?: string;
   prompt?: string;
   publicId?: string | null;
+  force?: boolean;
 }): Promise<void> {
   const db = await getDb();
   if (!db) return;
   const existing = await getTrainingModuleImage(params.moduleId, params.pageIndex);
-  if (existing) {
-    // Do not overwrite existing URL; just return
+  if (existing && !params.force) {
     return;
   }
-  await db.insert(trainingModuleImages).values({
-    moduleId: params.moduleId,
-    pageIndex: params.pageIndex,
-    url: params.url,
-    provider: params.provider ?? "openai",
-    prompt: params.prompt ?? null as any,
-    publicId: params.publicId ?? null as any,
-  });
+  if (existing && params.force) {
+    await db.update(trainingModuleImages)
+      .set({
+        url: params.url,
+        provider: params.provider ?? existing.provider,
+        prompt: (params.prompt ?? existing.prompt) as any,
+        publicId: (params.publicId ?? existing.publicId) as any,
+        createdAt: new Date(),
+      })
+      .where(and(eq(trainingModuleImages.moduleId, params.moduleId), eq(trainingModuleImages.pageIndex, params.pageIndex)));
+  } else {
+    await db.insert(trainingModuleImages).values({
+      moduleId: params.moduleId,
+      pageIndex: params.pageIndex,
+      url: params.url,
+      provider: params.provider ?? "openai",
+      prompt: params.prompt ?? null as any,
+      publicId: params.publicId ?? null as any,
+    });
+  }
 }
 
 // ========== Training Progress ==========

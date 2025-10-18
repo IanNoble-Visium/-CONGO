@@ -304,10 +304,10 @@ export const appRouter = router({
       }),
 
     generatePageImage: protectedProcedure
-      .input(z.object({ moduleId: z.string(), pageIndex: z.number().int().min(0), prompt: z.string().min(4) }))
+      .input(z.object({ moduleId: z.string(), pageIndex: z.number().int().min(0), prompt: z.string().min(4), force: z.boolean().optional() }))
       .mutation(async ({ input }) => {
         try {
-          const out = await ensureModulePageImage(input.moduleId, input.pageIndex, input.prompt);
+          const out = await ensureModulePageImage(input.moduleId, input.pageIndex, input.prompt, undefined, !!input.force);
           return { url: out.url, provider: out.provider } as const;
         } catch (err) {
           console.warn("[training.generatePageImage]", (err as Error)?.message);

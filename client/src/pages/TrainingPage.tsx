@@ -6,6 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { getMediaSettings, type TrainingMediaSettings } from "@/lib/trainingSettings";
 import { trpc } from "@/lib/trpc";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { CheckCircle2, Volume2, Trophy, Layers3, ArrowRight, ArrowLeft } from "lucide-react";
@@ -175,6 +176,7 @@ export default function TrainingPage() {
 
   // Auto-play narration and background video when page changes
   const bgVideoRef = useRef<HTMLVideoElement | null>(null);
+  const [mediaSettings, setMediaSettings] = useState<TrainingMediaSettings>(() => getMediaSettings());
   // Draggable / resizable dialog state
   const [dlgPos, setDlgPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [dlgSize, setDlgSize] = useState<{ w: number; h: number | 'auto' }>({ w: 0, h: 'auto' });
@@ -200,6 +202,16 @@ export default function TrainingPage() {
     setDlgInitialized(true);
     setAutoCenter(true);
   }, [activeModule]);
+  // react to settings changes
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === 'training-media-settings') {
+        setMediaSettings(getMediaSettings());
+      }
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
   useEffect(() => {
     if (!activeModule) setDlgInitialized(false);
   }, [activeModule]);
@@ -399,7 +411,8 @@ export default function TrainingPage() {
               <video
                 ref={bgVideoRef}
                 src={currentPage.videoUrl}
-                className="absolute inset-0 -z-10 h-full w-full object-cover opacity-30 blur-[1px] pointer-events-none"
+                className="absolute inset-0 -z-10 h-full w-full object-cover pointer-events-none"
+                style={{ opacity: mediaSettings.opacity, filter: `blur(${mediaSettings.blur}px)` }}
                 autoPlay
                 playsInline
                 muted
@@ -407,7 +420,10 @@ export default function TrainingPage() {
               />
             )}
             {active && currentPage && !currentPage.videoUrl && (
-              <PageImageBackground moduleId={active.id} pageIndex={activePageIndex} title={currentPage.title} body={currentPage.body} canGenerate={!!isAuthenticated} />
+              <PageImageBackground moduleId={active.id} pageIndex={activePageIndex} title={currentPage.title} body={currentPage.body} canGenerate={!!isAuthenticated} mediaSettings={mediaSettings} />
+            )}
+            {mediaSettings.gradient && (
+              <div className="absolute inset-0 pointer-events-none" style={{ zIndex: -9, background: "linear-gradient(180deg, rgba(0,0,0,0.12), rgba(0,0,0,0) 35%, rgba(0,0,0,0.10))" }} />
             )}
             {active && currentPage && (
               <>
@@ -563,7 +579,7 @@ function QuizSection({ moduleId, pageIndex, quiz, language, onResult }: { module
   );
 }
 
-function PageImageBackground({ moduleId, pageIndex, title, body, canGenerate }: { moduleId: string; pageIndex: number; title: string; body: string; canGenerate: boolean }) {
+function PageImageBackground({ moduleId, pageIndex, title, body, canGenerate, mediaSettings }: { moduleId: string; pageIndex: number; title: string; body: string; canGenerate: boolean; mediaSettings: TrainingMediaSettings }) {
   const { language } = useLanguage();
   const query = trpc.training.getPageImage.useQuery({ moduleId, pageIndex }, { enabled: !!moduleId || pageIndex >= 0 });
   const gen = trpc.training.generatePageImage.useMutation();
@@ -596,7 +612,7 @@ function PageImageBackground({ moduleId, pageIndex, title, body, canGenerate }: 
   return (
     <>
       {url ? (
-        <img src={url} alt="Training illustration" className="absolute inset-0 -z-10 h-full w-full object-cover opacity-30 blur-[1px] pointer-events-none" />
+        <img src={url} alt="Training illustration" className="absolute inset-0 -z-10 h-full w-full object-cover pointer-events-none" style={{ opacity: mediaSettings.opacity, filter: `blur(${mediaSettings.blur}px)` }} />
       ) : (
         canGenerate && (
           <div className="absolute inset-0 -z-10 flex items-center justify-center">

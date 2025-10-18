@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { trpc } from "@/lib/trpc";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,11 +13,16 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Database, AlertCircle, CheckCircle, Loader } from "lucide-react";
+import { Database, AlertCircle, CheckCircle, Loader, RefreshCw, Image as ImageIcon, SlidersHorizontal } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
+import { getMediaSettings, resetMediaSettings, saveMediaSettings, type TrainingMediaSettings } from "@/lib/trainingSettings";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function SettingsPage() {
   const { user } = useAuth();
+  const { language } = useLanguage();
   const [showSeedDialog, setShowSeedDialog] = useState(false);
   const [seedStatus, setSeedStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [seedMessage, setSeedMessage] = useState("");
@@ -48,6 +53,41 @@ export default function SettingsPage() {
   };
 
   const isAdmin = user?.role === "admin";
+
+  // Training media settings state
+  const [media, setMedia] = useState<TrainingMediaSettings>(() => getMediaSettings());
+  const [saveMsg, setSaveMsg] = useState<string>("");
+
+  // Training content for image management
+  type ModulePage = { title: string; body: string };
+  type Module = { id: string; title: string; pages: ModulePage[] };
+  const [modules, setModules] = useState<Module[]>([]);
+  useEffect(() => {
+    const url = language === "fr" ? "/training/training.fr.json" : "/training/training.en.json";
+    fetch(url)
+      .then((r) => r.json())
+      .then((data: { modules: Array<{ id: string; title: string; pages: Array<{ title: string; body: string }> }> }) => {
+        setModules(data.modules.map(m => ({ id: m.id, title: m.title, pages: m.pages.map(p => ({ title: p.title, body: p.body })) })));
+      })
+      .catch(() => setModules([]));
+  }, [language]);
+
+  // tRPC mutations for image generation
+  const genMutation = trpc.training.generatePageImage.useMutation();
+
+  async function regenerateOne(moduleId: string, pageIndex: number, prompt: string) {
+    await genMutation.mutateAsync({ moduleId, pageIndex, prompt, force: true });
+  }
+
+  async function regenerateAll() {
+    for (const m of modules) {
+      for (let i = 0; i < m.pages.length; i++) {
+        const p = m.pages[i];
+        const prompt = `${m.title}. ${p.title}. ${p.body}`.slice(0, 800);
+        try { await regenerateOne(m.id, i, prompt); } catch {}
+      }
+    }
+  }
 
   return (
     <DashboardLayout>
@@ -116,6 +156,87 @@ export default function SettingsPage() {
                     </>
                   )}
                 </Button>
+              </div>
+
+              {/* Training Media Settings */}
+              <div className="space-y-4 p-4 bg-slate-50 rounded-lg border border-slate-200">
+                <div className="flex items-center gap-2 mb-2">
+                  <SlidersHorizontal className="h-5 w-5" />
+                  <h3 className="font-semibold text-lg">Training Media Settings</h3>
+                </div>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <label className="text-sm font-medium">Background Opacity ({Math.round(media.opacity * 100)}%)</label>
+                    <Slider min={10} max={50} value={[Math.round(media.opacity * 100)]} onValueChange={(v) => setMedia(m => ({ ...m, opacity: (v[0] ?? 30) / 100 }))} />
+                    <p className="text-xs text-muted-foreground mt-1">Adjust to improve readability. Typical range: 25%–35%.</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Background Blur ({media.blur.toFixed(1)}px)</label>
+                    <Slider min={0} max={4} value={[Math.round(media.blur * 10)]} onValueChange={(v) => setMedia(m => ({ ...m, blur: (v[0] ?? 10) / 10 }))} />
+                    <p className="text-xs text-muted-foreground mt-1">Subtle blur helps text stand out. 0–3px recommended.</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Switch checked={media.gradient} onCheckedChange={(val) => setMedia(m => ({ ...m, gradient: !!val }))} />
+                  <span className="text-sm">Enable subtle gradient overlay</span>
+                </div>
+                <div className="flex gap-2">
+                  <Button onClick={() => { saveMediaSettings(media); setSaveMsg("Saved"); setTimeout(() => setSaveMsg(""), 2000); }}>Save</Button>
+                  <Button variant="outline" onClick={() => { resetMediaSettings(); const def = getMediaSettings(); setMedia(def); }}>Reset</Button>
+                  {saveMsg && <span className="text-sm text-green-600">{saveMsg}</span>}
+                </div>
+              </div>
+
+              {/* Training Image Management */}
+              <div className="space-y-4 p-4 bg-slate-50 rounded-lg border border-slate-200">
+                <div className="flex items-center gap-2 mb-2">
+                  <ImageIcon className="h-5 w-5" />
+                  <h3 className="font-semibold text-lg">Training Image Management</h3>
+                </div>
+                <p className="text-sm text-gray-600">Regenerate images to match the latest visual style and DRC context.</p>
+                <AlertDialog>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Regenerate all training images?</AlertDialogTitle>
+                      <AlertDialogDescription>This will overwrite existing images in Cloudinary with newly generated ones using current settings.</AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <div className="flex gap-3">
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={regenerateAll} className="bg-[#007FFF] hover:bg-[#0066cc]">Regenerate All</AlertDialogAction>
+                    </div>
+                  </AlertDialogContent>
+                  <Button variant="outline" className="flex items-center gap-2">
+                    <RefreshCw className="h-4 w-4" /> Regenerate All Images
+                  </Button>
+                </AlertDialog>
+
+                <div className="space-y-3">
+                  {modules.map((m) => (
+                    <Card key={m.id}>
+                      <CardHeader>
+                        <CardTitle className="text-base">{m.title}</CardTitle>
+                        <CardDescription>{m.id}</CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-2">
+                        {m.pages.map((p, idx) => {
+                          const prompt = `${m.title}. ${p.title}. ${p.body}`.slice(0, 800);
+                          const run = () => regenerateOne(m.id, idx, prompt);
+                          return (
+                            <div key={idx} className="flex items-center justify-between gap-3 py-2 border-b last:border-0">
+                              <div className="min-w-0">
+                                <div className="text-sm font-medium truncate">{idx + 1}. {p.title}</div>
+                                <div className="text-xs text-muted-foreground truncate">{p.body}</div>
+                              </div>
+                              <Button size="sm" onClick={run} disabled={genMutation.status === "pending"}>
+                                <RefreshCw className="h-4 w-4 mr-1" /> Regenerate
+                              </Button>
+                            </div>
+                          );
+                        })}
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
               </div>
             </CardContent>
           </Card>
