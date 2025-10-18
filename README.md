@@ -310,6 +310,11 @@ This release includes a comprehensive set of improvements to the training experi
   - New DB table `trainingModuleImages` stores URLs and metadata; server endpoints to fetch/generate.
   - Files: `server/_core/images.ts`, `server/routers.ts`, `drizzle/schema.ts`, `client/src/pages/TrainingPage.tsx`.
 
+- **Settings: Image Management & Visual Controls**
+  - Training Media Settings: adjust background opacity, blur, and optional gradient overlay. Persisted in localStorage and applied live to training pages.
+  - Training Image Management: regenerate all or per‑page module images with updated prompt style (DRC context). Shows confirmation and loading states.
+  - Files: `client/src/pages/SettingsPage.tsx`, `client/src/lib/trainingSettings.ts`.
+
 - **Progress**
   - Server-persisted progress per user/module with `trainingProgress` table and tRPC endpoints.
   - Endpoints are wrapped in try/catch to avoid 500s if DB isn’t available.
@@ -318,6 +323,12 @@ This release includes a comprehensive set of improvements to the training experi
 - **Narration (TTS)**
   - Auto-plays narration on page open (when permitted by browser policies).
   - Removed previous “preamble” so only the page text is narrated.
+  - Added narration language toggle (EN/FR) in the Training dialog header; persists for the session and restarts narration when switched.
+  - Files: `client/src/pages/TrainingPage.tsx`, `server/_core/tts.ts`.
+
+- **Speech-to-Text (Whisper) Support**
+  - Server utility for OpenAI Whisper (`whisper-1`) transcription with an explicit `language` parameter (e.g., `"fr"`).
+  - Files: `server/_core/stt.ts`.
   - File: `server/_core/tts.ts`.
 
 - **Content**
@@ -338,6 +349,9 @@ This release includes a comprehensive set of improvements to the training experi
 
 - Open a module; the dialog appears centered. Drag header to move, drag corner to resize, use Maximize/Restore, click "Center" (or double‑click header) to re-center.
 - Pages with videos show dimmed video background; pages without videos will auto-generate and display an image.
+- Adjust background opacity/blur/gradient in Settings → Training Media Settings.
+- Regenerate images globally or per page in Settings → Training Image Management.
+- Toggle narration language (EN/FR) in the Training dialog header; the selection persists during the session.
 
 ## Training Media: AI Images and Cloudinary
 
@@ -374,6 +388,7 @@ CLOUDINARY_FOLDER=training
 
 - `training.getPageImage({ moduleId, pageIndex })` → `{ url: string | null }`
 - `training.generatePageImage({ moduleId, pageIndex, prompt })` → `{ url, provider }`
+  - Optional: `force: true` to overwrite an existing image with a newly generated one.
 
 Notes:
 - Generation checks for an existing record and will not overwrite existing images.
@@ -396,6 +411,26 @@ Run migrations to create these tables (see `drizzle/schema.ts`).
 - **OpenAI 403 / missing b64**: Some accounts require org verification to use `gpt-image-1`. Use `IMAGE_PROVIDER=auto` or `recraft` with `RECRAFT_API_URL`/`RECRAFT_API_KEY` configured. The system prefers Recraft first in `auto` mode.
 - **No DB table**: If images don’t persist, run `npm run db:push` to create `trainingModuleImages` and restart the server.
 - **No background showing**: Hard-refresh the app after generation; ensure Cloudinary creds are correct.
+
+## Narration Language Toggle (EN/FR)
+
+- The Training dialog header includes EN/FR buttons for narration. Switching updates playback immediately and persists for the session.
+- The TTS engine uses the selected language to request an appropriate voice and pronunciation (`server/_core/tts.ts`).
+- If you also need transcription of audio samples, use the Whisper helper in `server/_core/stt.ts` which posts to `v1/audio/transcriptions` with `model=whisper-1` and `language` set to `"en"` or `"fr"`.
+
+Example (Python-style semantics mirrored by our helper):
+
+\`\`\`python
+with open("french_audio.mp3", "rb") as audio_file:
+    transcript = openai.Audio.transcribe(
+        model="whisper-1",
+        file=audio_file,
+        language="fr"  # ISO 639-1
+    )
+print(transcript)
+\`\`\`
+
+Our server helper submits the same parameters using multipart form data.
 
 ---
 
@@ -443,3 +478,11 @@ Below are improvements and ideas to consider. Items marked with ✅ are implemen
 - **Dev experience**
   - Suggestion: Add tests for dialog navigation, autoplay fallback, and quiz logic
   - Suggestion: Admin page to review/regenerate training images, re-upload to Cloudinary, and set alt text
+  - Suggestion: Bulk regeneration progress/queue with retries and concurrency controls
+  - Suggestion: Role-based controls for regeneration and media settings
+
+- **Audio & Accessibility**
+  - Suggestion: Offline cache for TTS audio per page/language
+  - Suggestion: Voice picker with preview and per-language preferred voices
+  - Suggestion: Toggle “auto-narrate on page open” and announce page changes via `aria-live`
+  - Suggestion: Provide downloadable textual transcripts per page (via Whisper) and ensure alt text for images

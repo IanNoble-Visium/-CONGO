@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { trpc } from "@/lib/trpc";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -79,7 +79,11 @@ export default function SettingsPage() {
     await genMutation.mutateAsync({ moduleId, pageIndex, prompt, force: true });
   }
 
+  const [regenOpen, setRegenOpen] = useState(false);
+  const [regenLoading, setRegenLoading] = useState(false);
+
   async function regenerateAll() {
+    setRegenLoading(true);
     for (const m of modules) {
       for (let i = 0; i < m.pages.length; i++) {
         const p = m.pages[i];
@@ -87,6 +91,8 @@ export default function SettingsPage() {
         try { await regenerateOne(m.id, i, prompt); } catch {}
       }
     }
+    setRegenLoading(false);
+    setRegenOpen(false);
   }
 
   return (
@@ -194,20 +200,20 @@ export default function SettingsPage() {
                   <h3 className="font-semibold text-lg">Training Image Management</h3>
                 </div>
                 <p className="text-sm text-gray-600">Regenerate images to match the latest visual style and DRC context.</p>
-                <AlertDialog>
+                <Button variant="outline" className="flex items-center gap-2" onClick={() => setRegenOpen(true)} disabled={regenLoading}>
+                  <RefreshCw className="h-4 w-4" /> {regenLoading ? "Regenerating..." : "Regenerate All Images"}
+                </Button>
+                <AlertDialog open={regenOpen} onOpenChange={setRegenOpen}>
                   <AlertDialogContent>
                     <AlertDialogHeader>
                       <AlertDialogTitle>Regenerate all training images?</AlertDialogTitle>
                       <AlertDialogDescription>This will overwrite existing images in Cloudinary with newly generated ones using current settings.</AlertDialogDescription>
                     </AlertDialogHeader>
                     <div className="flex gap-3">
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction onClick={regenerateAll} className="bg-[#007FFF] hover:bg-[#0066cc]">Regenerate All</AlertDialogAction>
+                      <AlertDialogCancel disabled={regenLoading}>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={regenerateAll} disabled={regenLoading} className="bg-[#007FFF] hover:bg-[#0066cc]">Regenerate All</AlertDialogAction>
                     </div>
                   </AlertDialogContent>
-                  <Button variant="outline" className="flex items-center gap-2">
-                    <RefreshCw className="h-4 w-4" /> Regenerate All Images
-                  </Button>
                 </AlertDialog>
 
                 <div className="space-y-3">

@@ -56,6 +56,9 @@ export default function TrainingPage() {
   const [narrating, setNarrating] = useState(false);
   const [narrationError, setNarrationError] = useState<string | null>(null);
   const [showCertificate, setShowCertificate] = useState(false);
+  const [narrationLang, setNarrationLang] = useState<"en" | "fr">(() => {
+    try { return (sessionStorage.getItem("training-narration-lang") as any) || (language as any) || "en"; } catch { return language as any; }
+  });
 
   const [modules, setModules] = useState<Module[]>([]);
   // Load content from JSON and attach b-roll URLs from available videos
@@ -108,6 +111,22 @@ export default function TrainingPage() {
     } catch {}
   }
 
+  async function getNarrationTextForLang(target: "en" | "fr"): Promise<string> {
+    if (!active || !currentPage) return "";
+    if (target === language) {
+      return `${active.title}. ${currentPage.title}. ${currentPage.body}`;
+    }
+    try {
+      const url = target === "fr" ? "/training/training.fr.json" : "/training/training.en.json";
+      const res = await fetch(url);
+      const json = await res.json();
+      const mod = (json?.modules || []).find((m: any) => m.id === active.id);
+      const page = mod?.pages?.[activePageIndex];
+      if (mod && page) return `${mod.title}. ${page.title}. ${page.body}`;
+    } catch {}
+    return `${active.title}. ${currentPage.title}. ${currentPage.body}`;
+  }
+
   function stopAudio() {
     setNarrating(false);
     setNarrationError(null);
@@ -123,7 +142,7 @@ export default function TrainingPage() {
     try {
       setNarrationError(null);
       setNarrating(true);
-      const res = await narrate.mutateAsync({ text, language });
+      const res = await narrate.mutateAsync({ text, language: narrationLang });
       const a = audioRef.current || new Audio();
       audioRef.current = a;
       a.src = `data:${res.contentType};base64,${res.audioBase64}`;
@@ -134,6 +153,16 @@ export default function TrainingPage() {
       setNarrationError(e?.message || "Narration failed");
     }
   }
+
+  useEffect(() => {
+    try { sessionStorage.setItem("training-narration-lang", narrationLang); } catch {}
+    // If currently narrating and we have a page, restart in the new language
+    if (narrating && active && currentPage) {
+      stopAudio();
+      getNarrationTextForLang(narrationLang).then((txt) => playNarration(txt));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [narrationLang]);
 
   function openModule(id: string) {
     setActiveModule(id);
@@ -218,8 +247,7 @@ export default function TrainingPage() {
   useEffect(() => {
     if (active && currentPage) {
       // Attempt autoplay narration
-      const text = `${active.title}. ${currentPage.title}. ${currentPage.body}`;
-      playNarration(text);
+      getNarrationTextForLang(narrationLang).then((txt) => playNarration(txt));
       // Attempt autoplay video
       const v = bgVideoRef.current;
       if (v) {
@@ -428,10 +456,30 @@ export default function TrainingPage() {
             {active && currentPage && (
               <>
                 <DialogHeader onMouseDown={startDrag} onDoubleClick={resetPosition} className="cursor-move select-none">
-                  <DialogTitle>{active.title}</DialogTitle>
-                  <DialogDescription>
-                    {activePageIndex + 1} / {active.pages.length}
-                  </DialogDescription>
+                  <div className="flex items-center justify-between gap-2">
+                    <div>
+                      <DialogTitle>{active.title}</DialogTitle>
+                      <DialogDescription>
+                        {activePageIndex + 1} / {active.pages.length}
+                      </DialogDescription>
+                    </div>
+                    <div className="flex items-center gap-1" onMouseDown={(e) => e.stopPropagation()}>
+                      <Button
+                        variant={narrationLang === 'en' ? 'default' : 'outline'}
+                        size="sm"
+                        aria-pressed={narrationLang === 'en'}
+                        aria-label="Narration language English"
+                        onClick={() => setNarrationLang('en')}
+                      >EN</Button>
+                      <Button
+                        variant={narrationLang === 'fr' ? 'default' : 'outline'}
+                        size="sm"
+                        aria-pressed={narrationLang === 'fr'}
+                        aria-label="Narration language French"
+                        onClick={() => setNarrationLang('fr')}
+                      >FR</Button>
+                    </div>
+                  </div>
                 </DialogHeader>
                 <div className="space-y-4 relative overflow-auto pr-1" style={{ maxHeight: "60vh" }}>
                   <div className="space-y-2">
@@ -469,7 +517,11 @@ export default function TrainingPage() {
                   <div className="flex items-center gap-2">
                     <Button
                       variant="outline"
-                      onClick={() => (narrating ? stopAudio() : playNarration(`${active.title}. ${currentPage.title}. ${currentPage.body}`))}
+                      onClick={async () => {
+                        if (narrating) { stopAudio(); return; }
+                        const txt = await getNarrationTextForLang(narrationLang);
+                        playNarration(txt);
+                      }}
                       aria-label={narrating ? (language === "fr" ? "Arrêter la narration" : "Stop narration") : (language === "fr" ? "Lire la narration" : "Play narration")}
                     >
                       <Volume2 className="h-4 w-4 mr-2" />
