@@ -129,10 +129,12 @@ export async function ensureModulePageImage(moduleId: string, pageIndex: number,
     const existing = await getTrainingModuleImage(moduleId, pageIndex);
     if (existing?.url) return existing;
   } catch {}
-  const { b64, provider } = await generateImageB64(prompt, size);
+  const drcContext = "Democratic Republic of the Congo context: Kinshasa or Lubumbashi urban scenes, Congolese people and communities, local architecture and street life, DRC landmarks and geography; culturally respectful, authentic, modern, documentary style";
+  const finalPrompt = `${prompt}. ${drcContext}`.slice(0, 900);
+  const { b64, provider } = await generateImageB64(finalPrompt, size);
   const { url, public_id } = await uploadToCloudinary(b64, { folder: ENV.cloudinaryFolder, publicId: `${moduleId}_${pageIndex}` });
   try {
-    await saveTrainingModuleImage({ moduleId, pageIndex, url, provider, prompt, publicId: public_id });
+    await saveTrainingModuleImage({ moduleId, pageIndex, url, provider, prompt: finalPrompt, publicId: public_id });
   } catch {}
-  return { moduleId, pageIndex, url, provider, prompt, publicId: public_id };
+  return { moduleId, pageIndex, url, provider, prompt: finalPrompt, publicId: public_id };
 }

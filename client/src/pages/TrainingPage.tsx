@@ -399,7 +399,7 @@ export default function TrainingPage() {
               <video
                 ref={bgVideoRef}
                 src={currentPage.videoUrl}
-                className="absolute inset-0 -z-10 h-full w-full object-cover opacity-25 blur-sm pointer-events-none"
+                className="absolute inset-0 -z-10 h-full w-full object-cover opacity-30 blur-[1px] pointer-events-none"
                 autoPlay
                 playsInline
                 muted
@@ -596,7 +596,7 @@ function PageImageBackground({ moduleId, pageIndex, title, body, canGenerate }: 
   return (
     <>
       {url ? (
-        <img src={url} alt="Training illustration" className="absolute inset-0 -z-10 h-full w-full object-cover opacity-25 blur-sm pointer-events-none" />
+        <img src={url} alt="Training illustration" className="absolute inset-0 -z-10 h-full w-full object-cover opacity-30 blur-[1px] pointer-events-none" />
       ) : (
         canGenerate && (
           <div className="absolute inset-0 -z-10 flex items-center justify-center">

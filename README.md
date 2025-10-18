@@ -196,6 +196,7 @@ The application includes the following main tables:
 - `pnpm build` - Build for production
 - `pnpm preview` - Preview production build
 - `pnpm db:push` - Push database schema changes
+- `npm run gen:images` - Pre-generate illustrative images for all training pages without video (uploads to Cloudinary)
 - `pnpm test` - Run tests
 - `pnpm lint` - Run ESLint
 
@@ -292,6 +293,52 @@ For questions or issues related to the DRC infrastructure modernization project,
 
 Proprietary - Visium Technologies
 
+## Recent Enhancements (Training System)
+
+This release includes a comprehensive set of improvements to the training experience.
+
+- **Dialog UX**
+  - Centered by default; uses Radix centering until moved/resized.
+  - Draggable by header, resizable with bottom-right grip.
+  - Maximize/Restore button. New "Center" button and header double-click to re-center.
+  - Keeps header/footer fixed with scrollable content; constrained within viewport and adjusts on window resize.
+  - Files: `client/src/pages/TrainingPage.tsx`, `client/src/components/ui/dialog.tsx` (children forwarding fix).
+
+- **Media**
+  - Subtle b‑roll video background with blur/opacity.
+  - If a page has no video, auto-generates an illustrative image (Recraft-first by default) and uploads to Cloudinary.
+  - New DB table `trainingModuleImages` stores URLs and metadata; server endpoints to fetch/generate.
+  - Files: `server/_core/images.ts`, `server/routers.ts`, `drizzle/schema.ts`, `client/src/pages/TrainingPage.tsx`.
+
+- **Progress**
+  - Server-persisted progress per user/module with `trainingProgress` table and tRPC endpoints.
+  - Endpoints are wrapped in try/catch to avoid 500s if DB isn’t available.
+  - Files: `drizzle/schema.ts`, `server/db.ts`, `server/routers.ts`.
+
+- **Narration (TTS)**
+  - Auto-plays narration on page open (when permitted by browser policies).
+  - Removed previous “preamble” so only the page text is narrated.
+  - File: `server/_core/tts.ts`.
+
+- **Content**
+  - Training modules/pages sourced from JSON: `client/public/training/training.en.json` and `.fr.json`.
+  - Client loads appropriate language and maps keywords to b‑roll videos when available.
+
+- **Quizzes & Achievements**
+  - Per‑page quizzes with instant result badges.
+  - Progress integrates with server persistence; achievements surfaced inline.
+
+- **Completion**
+  - Completion banner and printable certificate dialog.
+
+- **Accessibility**
+  - ARIA labels on controls, keyboard focus outlines, color-safe backgrounds for media overlays.
+
+### How to use
+
+- Open a module; the dialog appears centered. Drag header to move, drag corner to resize, use Maximize/Restore, click "Center" (or double‑click header) to re-center.
+- Pages with videos show dimmed video background; pages without videos will auto-generate and display an image.
+
 ## Training Media: AI Images and Cloudinary
 
 This project can automatically generate illustrative images for training modules/pages that do not have a b-roll video.
@@ -306,13 +353,13 @@ This project can automatically generate illustrative images for training modules
 Add these to `.env` (see `.env.example` for comments):
 
 ```env
-IMAGE_PROVIDER=openai            # or recraft
+IMAGE_PROVIDER=auto              # auto (preferred) | recraft | openai
 
-# OpenAI (if IMAGE_PROVIDER=openai)
+# OpenAI (if IMAGE_PROVIDER=openai or fallback from auto/recraft)
 OPENAI_API_KEY=...
 OPENAI_IMAGE_MODEL=gpt-image-1
 
-# Recraft (if IMAGE_PROVIDER=recraft)
+# Recraft (if IMAGE_PROVIDER=recraft or chosen by auto)
 RECRAFT_API_URL=...
 RECRAFT_API_KEY=...
 
@@ -343,6 +390,12 @@ Run migrations to create these tables (see `drizzle/schema.ts`).
 
 - When a training page has no video, the UI tries to load an image via `getPageImage`.
 - If none exists and the user is authenticated, a "Generate" button appears to invoke `generatePageImage` using a prompt derived from the page title/body.
+
+### Troubleshooting
+
+- **OpenAI 403 / missing b64**: Some accounts require org verification to use `gpt-image-1`. Use `IMAGE_PROVIDER=auto` or `recraft` with `RECRAFT_API_URL`/`RECRAFT_API_KEY` configured. The system prefers Recraft first in `auto` mode.
+- **No DB table**: If images don’t persist, run `npm run db:push` to create `trainingModuleImages` and restart the server.
+- **No background showing**: Hard-refresh the app after generation; ensure Cloudinary creds are correct.
 
 ---
 
