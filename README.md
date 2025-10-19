@@ -285,6 +285,26 @@ The application is successfully deployed on Vercel and supports both development
 
 **Note:** The current authentication system uses a static demo user for testing purposes. For production deployment, implement proper OAuth or JWT-based authentication.
 
+### Deployment Note: Training Videos on Vercel
+
+- **Issue**: Training dialog b‑roll videos played locally but not on Vercel; only fallback images appeared.
+- **Cause**: `training.listVideos` reads files from `video/training/` and returns `/media/training/*`. In Vercel’s serverless runtime those files aren’t present, and previous rewrites sent `/media/training/*` to the SPA fallback instead of serving static files.
+- **Fix**:
+  - Copy videos from `video/training/` into the client public tree and generate an index at build time via `scripts/prepare-training-media.ts`.
+  - Update `package.json` to run the script in `prebuild` so `dist/public/media/training/` contains videos and `index.json`.
+  - Ensure the client (`client/src/pages/TrainingPage.tsx`) loads `/media/training/index.json` as a fallback when `listVideos` returns empty.
+  - Update `vercel.json` to use `routes` with a filesystem handle so static assets (e.g., `/media/training/*`) are served before SPA fallback.
+- **Verify**:
+  - `pnpm build` then confirm `dist/public/media/training/index.json` exists.
+  - In production, GET `https://<host>/media/training/index.json` and one video URL under `/media/training/`.
+  - Open a Training module dialog and confirm the video background plays.
+- **Relevant files**:
+  - `scripts/prepare-training-media.ts`
+  - `package.json` → `"prebuild"`
+  - `client/src/pages/TrainingPage.tsx`
+  - `vercel.json`
+  - Local dev static mapping: `server/_core/index.ts` serves `/media/training`.
+
 ## Support
 
 For questions or issues related to the DRC infrastructure modernization project, please contact the Visium Technologies team.
