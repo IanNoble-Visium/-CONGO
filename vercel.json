@@ -8,14 +8,9 @@
       "maxDuration": 60
     }
   },
-  "rewrites": [
-    {
-      "source": "/api/trpc/:path*",
-      "destination": "/api"
-    },
-    {
-      "source": "/:path*",
-      "destination": "/index.html"
-    }
+  "routes": [
+    { "src": "/api/trpc/(.*)", "dest": "/api" },
+    { "handle": "filesystem" },
+    { "src": "/(.*)", "dest": "/index.html" }
   ]
 }

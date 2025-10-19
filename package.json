@@ -4,7 +4,7 @@
   "type": "module",
   "license": "MIT",
   "scripts": {
-    "prebuild": "node -e \"const fs = require('fs'); const path = require('path'); const dir = path.join('client', 'public', 'images'); if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true }); if (fs.existsSync('images/logo.jpg')) fs.copyFileSync('images/logo.jpg', path.join(dir, 'logo.jpg'));\"",
+    "prebuild": "node -e \"const fs = require('fs'); const path = require('path'); const dir = path.join('client', 'public', 'images'); if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true }); if (fs.existsSync('images/logo.jpg')) fs.copyFileSync('images/logo.jpg', path.join(dir, 'logo.jpg'));\" && tsx scripts/prepare-training-media.ts",
     "dev": "cross-env NODE_ENV=development tsx watch server/_core/index.ts",
     "build": "pnpm prebuild && vite build && esbuild server/_core/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist --loader:.node=file --external:vite --external:@vite/* --external:rollup --external:@rollup/*",
     "build:full": "pnpm prebuild && vite build && esbuild server/_core/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",

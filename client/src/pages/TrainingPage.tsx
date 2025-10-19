@@ -35,7 +35,8 @@ function saveProgress(p: ProgressMap) {
 export default function TrainingPage() {
   const { language, t } = useLanguage();
   const { isAuthenticated, user } = useAuth();
-  const { data: videos, isLoading: loadingVideos, error: videosError } = trpc.training.listVideos.useQuery();
+  const { data: serverVideos, isLoading: loadingVideos, error: videosError } = trpc.training.listVideos.useQuery();
+  const [staticVideos, setStaticVideos] = useState<Array<{ name: string; url: string }>>([]);
   const narrate = trpc.training.narrate.useMutation();
   const saveProgressMutation = trpc.training.saveProgress.useMutation();
   const { data: serverProgress, refetch: refetchProgress } = trpc.training.getProgress.useQuery(undefined, {
@@ -61,13 +62,27 @@ export default function TrainingPage() {
   });
 
   const [modules, setModules] = useState<Module[]>([]);
+  // Load static index of training videos (works on Vercel static hosting)
+  useEffect(() => {
+    let canceled = false;
+    fetch("/media/training/index.json")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (!canceled && Array.isArray(data)) setStaticVideos(data as any);
+      })
+      .catch(() => {});
+    return () => {
+      canceled = true;
+    };
+  }, []);
+
   // Load content from JSON and attach b-roll URLs from available videos
   useEffect(() => {
     const url = language === "fr" ? "/training/training.fr.json" : "/training/training.en.json";
     fetch(url)
       .then((r) => r.json())
       .then((data: { modules: Array<{ id: string; title: string; summary: string; pages: Array<{ title: string; body: string; keywords?: string[]; quiz?: QuizSpec }> }> }) => {
-        const v = videos || [];
+        const v = (serverVideos && serverVideos.length ? serverVideos : staticVideos) || [];
         const findByKeywords = (kw?: string[]) => {
           if (!kw || kw.length === 0) return undefined;
           const hit = v.find((vid) => kw.some((k) => vid.name.toLowerCase().includes(k.toLowerCase())));
@@ -82,7 +97,7 @@ export default function TrainingPage() {
         setModules(mods);
       })
       .catch(() => setModules([]));
-  }, [language, videos]);
+  }, [language, serverVideos, staticVideos]);
   // Hydrate local progress from server on load
   useEffect(() => {
     if (!serverProgress || !Array.isArray(serverProgress)) return;
